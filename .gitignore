@@ -13,4 +13,5 @@ docs/
 Graphics/Release/
 Graphics/Debug/
 Graphics/x64/
-
+**/Debug/
+**/x64/
