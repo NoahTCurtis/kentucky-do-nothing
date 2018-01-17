@@ -1,3 +1,3 @@
 #pragma once
 
-bool main_loop(GLFWwindow* window, unsigned shader_program);
+bool main_loop(unsigned shader_program);

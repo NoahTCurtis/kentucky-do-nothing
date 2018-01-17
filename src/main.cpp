@@ -4,8 +4,9 @@
 #include <cstdio>
 #include <iostream>
 
-#include <main_loop.h>
-#include <input.h>
+#include "main_loop.h"
+#include "input.h"
+#include "window.h"
 
 
 float randFloat01()
@@ -91,18 +92,18 @@ int main(void)
   ///glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
   //Create a window, set context to current
-  GLFWwindow* window = glfwCreateWindow(800, 600, "yo whats up", NULL, NULL);
-  if (window == NULL)
+  mainWindow = glfwCreateWindow(800, 600, "yo whats up", NULL, NULL);
+  if (mainWindow == NULL)
   {
     std::cout << "Failed to create GLFW window" << std::endl;
     glfwTerminate();
     return -1;
   }
-  glfwMakeContextCurrent(window);
+  glfwMakeContextCurrent(mainWindow);
 
   //Set callbacks
-  glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-  glfwSetKeyCallback(window, input_key_callback);
+  ///glfwSetFramebufferSizeCallback(mainWindow, framebuffer_size_callback);
+  ///glfwSetKeyCallback(mainWindow, input_key_callback);
 
   //Initialize GLAD
   if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -116,7 +117,7 @@ int main(void)
   unsigned shader_program = create_shader_program();
 
   //Main loop!
-  while ( main_loop(window, shader_program) );
+  while ( main_loop(shader_program) );
 
   //Exit safely
   glfwTerminate();

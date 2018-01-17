@@ -7,8 +7,9 @@
 #include <ctime>
 #include <iostream>
 
-#include <main_loop.h>
-#include <input.h>
+#include "main_loop.h"
+#include "input.h"
+#include "window.h"
 
  
 
@@ -21,17 +22,20 @@
 
 
 
-bool main_loop(GLFWwindow* window, unsigned shader_program)
+bool main_loop(unsigned shader_program)
 {
   glfwPollEvents();
 
   static int frame = 1;
-  std::cout << frame++ << '\r';
+  std::cout << std::hex << frame++ << '\r';
 
-  glColor3f(1, 0, 0);
-  glDrawBuffer(GL_TRIANGLES);
+  glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+  glClear(GL_COLOR_BUFFER_BIT);
+
+
+
   
 
-  glfwSwapBuffers(window);
-  return !someKeyPressed && !glfwWindowShouldClose(window);
+  glfwSwapBuffers(mainWindow);
+  return Input::IsTriggered(Keys::Escape) || !glfwWindowShouldClose(mainWindow);
 }
