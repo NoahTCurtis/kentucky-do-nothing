@@ -14,12 +14,12 @@ public:
 private:
   GLFWwindow* window_;
 
-  GLFWcharfun        i; void  charFunc_(GLFWwindow*, unsigned);
-  GLFWcharmodsfun    i; void  charModsFunc_(GLFWwindow*, unsigned, int);
-  GLFWcursorenterfun i; void  cursorEnterFunc_(GLFWwindow*, int);
-  GLFWcursorposfun   i; void  cursorPosFunc_(GLFWwindow*, double, double);
-  GLFWdropfun        i; void  dropFunc_(GLFWwindow*, int, const char**);
-  GLFWkeyfun         i; void  keyFunc_(GLFWwindow*, int, int, int, int);
-  GLFWmousebuttonfun i; void  mouseButtonFunc_(GLFWwindow*, int, int, int);
-  GLFWscrollfun      i; void  scrollFunc_(GLFWwindow*, double, double);
+  /*GLFWcharfun        */  void charFunc_(GLFWwindow*, unsigned);
+  /*GLFWcharmodsfun    */  void charModsFunc_(GLFWwindow*, unsigned, int);
+  /*GLFWcursorenterfun */  void cursorEnterFunc_(GLFWwindow*, int);
+  /*GLFWcursorposfun   */  void cursorPosFunc_(GLFWwindow*, double, double);
+  /*GLFWdropfun        */  void dropFunc_(GLFWwindow*, int, const char**);
+  /*GLFWkeyfun         */  void keyFunc_(GLFWwindow*, int, int, int, int);
+  /*GLFWmousebuttonfun */  void mouseButtonFunc_(GLFWwindow*, int, int, int);
+  /*GLFWscrollfun      */  void scrollFunc_(GLFWwindow*, double, double);
 };

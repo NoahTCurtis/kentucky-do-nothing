@@ -1,0 +1,16 @@
+# file types
+*~
+*.swp
+*.db
+*.VC.db
+*.opendb
+*.tlog
+*.lastbuildstate
+
+
+# directories
+docs/
+Graphics/Release/
+Graphics/Debug/
+Graphics/x64/
+

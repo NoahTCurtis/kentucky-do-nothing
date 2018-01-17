@@ -7,14 +7,14 @@ Window::Window(int vertical, int horizontal, const char* title)
   //make new window
   window_ = glfwCreateWindow(horizontal, vertical, title, NULL, NULL);
 
-  glfwSetCharCallback        (window_, charFunc_);
-  glfwSetCharModsCallback    (window_, charModsFunc_);
-  glfwSetCursorEnterCallback (window_, cursorEnterFunc_);
-  glfwSetCursorPosCallback   (window_, cursorPosFunc_);
-  glfwSetDropCallback        (window_, dropFunc_);
-  glfwSetKeyCallback         (window_, keyFunc_);
-  glfwSetMouseButtonCallback (window_, mouseButtonFunc_);
-  glfwSetScrollCallback      (window_, scrollFunc_);
+  ///glfwSetCharCallback        (window_, (GLFWcharfun       ) charFunc_);
+  ///glfwSetCharModsCallback    (window_, (GLFWcharmodsfun   ) charModsFunc_);
+  ///glfwSetCursorEnterCallback (window_, (GLFWcursorenterfun) cursorEnterFunc_);
+  ///glfwSetCursorPosCallback   (window_, (GLFWcursorposfun  ) cursorPosFunc_);
+  ///glfwSetDropCallback        (window_, (GLFWdropfun       ) dropFunc_);
+  ///glfwSetKeyCallback         (window_, (GLFWkeyfun        ) keyFunc_);
+  ///glfwSetMouseButtonCallback (window_, (GLFWmousebuttonfun) mouseButtonFunc_);
+  ///glfwSetScrollCallback      (window_, (GLFWscrollfun     ) scrollFunc_);
 }
 
 
@@ -26,8 +26,3 @@ Window::Window(int vertical, int horizontal, const char* title)
 //GLFWkeyfun          Window::keyFunc_;
 //GLFWmousebuttonfun  Window::mouseButtonFunc_;
 //GLFWscrollfun       Window::scrollFunc_;
-
-void Window::charFunc_(GLFWwindow* win, unsigned u)
-{
-
-}
