@@ -84,6 +84,10 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
 int main(void)
 {
+  //Create Managers
+  Input = new InputManager;
+  Input->Initialize();
+
   //Initialize GLFW
   glfwInit();
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -92,14 +96,7 @@ int main(void)
   ///glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
   //Create a window, set context to current
-  mainWindow = glfwCreateWindow(800, 600, "yo whats up", NULL, NULL);
-  if (mainWindow == NULL)
-  {
-    std::cout << "Failed to create GLFW window" << std::endl;
-    glfwTerminate();
-    return -1;
-  }
-  glfwMakeContextCurrent(mainWindow);
+  mainWindow = new Window(800, 600, "yo whats up");
 
   //Set callbacks
   ///glfwSetFramebufferSizeCallback(mainWindow, framebuffer_size_callback);
@@ -120,6 +117,7 @@ int main(void)
   while ( main_loop(shader_program) );
 
   //Exit safely
+  delete mainWindow;
   glfwTerminate();
   return 0;
 }

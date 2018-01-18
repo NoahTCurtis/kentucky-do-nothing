@@ -30,13 +30,19 @@
 #include <GLFW/glfw3.h>
 #include <glm/vec2.hpp>
 
-
 /* Key position values */
 #define KEY_IS_UNKNOWN  0
 #define KEY_IS_UP       0
 #define KEY_IS_PRESSED  1
 #define KEY_IS_DOWN     2
 #define KEY_IS_RELEASED 4
+
+/* Input system info */
+#define ALL_KEYS_MAX 375
+#define MOUSE_KEYS_NUM 10
+#define GAMEPAD_AXES_MAX 10
+#define GAMEPAD_BUTTONS_MAX 20
+
 
 namespace Mouse
 {
@@ -235,32 +241,9 @@ public:
 
   static void RegisterWindow(GLFWwindow* window);
 
-  static void HandleKeyEvent(
-    GLFWwindow *window,
-    int keycode,
-    int scancode,
-    int action,
-    int mode);
-
-  static void HandleMouseEvent(
-    GLFWwindow* window,
-    int button,
-    int action,
-    int mods);
-
-  static void HandleScrollEvent(
-    GLFWwindow* window,
-    double xoffset,
-    double yoffset);
-
-  static void HandleMousePosition(
-    GLFWwindow* window,
-    double xpos,
-    double ypos);
-
   static glm::vec2 MousePosNDC(void);
   static glm::vec2 MousePosWindow(void);
-  //static glm::vec2 MousePosSpecial(void);
+  ///static glm::vec2 MousePosSpecial(void);
 
   static int IsTriggered(int keycode);
   static int IsDown     (int keycode);
@@ -273,12 +256,19 @@ public:
   static float RightTrigger();
   static float LeftTrigger();
   static glm::vec2 DPad();
+
   static bool IsScrolling();
   static float GetScroll();
 
-  static bool active;
-
 private:
+  /* GLFWcharfun        */ ///static void charFunc_(GLFWwindow*, unsigned);
+  /* GLFWcharmodsfun    */ ///static void charModsFunc_(GLFWwindow*, unsigned, int);
+  /* GLFWcursorenterfun */ ///static void cursorEnterFunc_(GLFWwindow*, int);
+  /* GLFWcursorposfun   */ static void cursorPosFunc_(GLFWwindow*, double, double);
+  /* GLFWdropfun        */ static void dropFunc_(GLFWwindow*, int, const char**);
+  /* GLFWkeyfun         */ static void keyFunc_(GLFWwindow*, int, int, int, int);
+  /* GLFWmousebuttonfun */ static void mouseButtonFunc_(GLFWwindow*, int, int, int);
+  /* GLFWscrollfun      */ static void scrollFunc_(GLFWwindow*, double, double);
 
   static unsigned short* keys_;
   static float* axes_;
@@ -286,8 +276,9 @@ private:
   static double mouseY_;
   static float  scrollY_;
     
+  static bool active_;
 }; // end of class InputManager
 
-typedef InputManager Input;
+static InputManager* Input;
 
 #endif // end of once-over

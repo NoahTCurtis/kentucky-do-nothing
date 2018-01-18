@@ -24,7 +24,7 @@
 
 bool main_loop(unsigned shader_program)
 {
-  glfwPollEvents();
+  Input->Update(0);
 
   static int frame = 1;
   std::cout << std::hex << frame++ << '\r';
@@ -36,6 +36,6 @@ bool main_loop(unsigned shader_program)
 
   
 
-  glfwSwapBuffers(mainWindow);
-  return Input::IsTriggered(Keys::Escape) || !glfwWindowShouldClose(mainWindow);
+  glfwSwapBuffers(mainWindow->GLFW());
+  return Input->IsTriggered(Keys::Escape) || !glfwWindowShouldClose(mainWindow->GLFW());
 }
