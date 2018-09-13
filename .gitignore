@@ -6,12 +6,14 @@
 *.opendb
 *.tlog
 *.lastbuildstate
-
+*.ipch
+*.tlog
+*.idb
 
 # directories
 docs/
-Graphics/Release/
-Graphics/Debug/
-Graphics/x64/
+vis/Release/
+vis/Debug/
+vis/x64/
 **/Debug/
 **/x64/
