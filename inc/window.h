@@ -7,7 +7,7 @@ class Window
 public:
   Window(int vertical, int horizontal, const char* title);
 
-  GLFWwindow* GLFW() { return window_; }
+  GLFWwindow* getGLFWwindow() { return window_; }
 
 private:
   GLFWwindow* window_;

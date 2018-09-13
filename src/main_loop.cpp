@@ -11,9 +11,6 @@
 #include "input.h"
 #include "window.h"
 
- 
-
-
 
 ///float randFloat01()
 ///{
@@ -21,13 +18,12 @@
 ///}
 
 
-
 bool main_loop(unsigned shader_program)
 {
   Input->Update(0);
 
   static int frame = 1;
-  std::cout << std::hex << frame++ << '\r';
+  //std::cout << std::hex << frame++ << '\r';
 
   glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT);
@@ -36,6 +32,6 @@ bool main_loop(unsigned shader_program)
 
   
 
-  glfwSwapBuffers(mainWindow->GLFW());
-  return Input->IsTriggered(Keys::Escape) || !glfwWindowShouldClose(mainWindow->GLFW());
+  glfwSwapBuffers(mainWindow->getGLFWwindow());
+  return Input->IsTriggered(Keys::Escape) || !glfwWindowShouldClose(mainWindow->getGLFWwindow());
 }

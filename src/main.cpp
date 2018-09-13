@@ -96,7 +96,8 @@ int main(void)
   ///glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
   //Create a window, set context to current
-  mainWindow = new Window(800, 600, "yo whats up");
+  mainWindow = new Window(600, 800, "yo whats up");
+  Input->RegisterWindow(mainWindow->getGLFWwindow());
 
   //Set callbacks
   ///glfwSetFramebufferSizeCallback(mainWindow, framebuffer_size_callback);

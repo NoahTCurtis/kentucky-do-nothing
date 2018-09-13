@@ -5,6 +5,7 @@
 #include <glm/glm.hpp>
 
 #include "input.h"
+#include "input_internal.h"
 
 
 glm::vec2 InputManager::MousePosNDC(void)

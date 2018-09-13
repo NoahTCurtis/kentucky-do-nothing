@@ -6,6 +6,7 @@
 
 #include "window.h"
 #include "input.h"
+#include "input_internal.h"
 
 
 //Static member function declaration
