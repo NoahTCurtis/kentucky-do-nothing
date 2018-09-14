@@ -6,7 +6,7 @@
 
 struct GlobalData
 {
-	GLuint shader_program_d;
+	GLuint shader_program_name;
 	GLuint VBO_name;
 	GLuint VAO_name;
 	GLuint EBO_name;

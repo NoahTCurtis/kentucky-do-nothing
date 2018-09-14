@@ -78,8 +78,15 @@ bool main_loop()
 	glBindBuffer(GL_ARRAY_BUFFER, Globals.VBO_name);
 	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
 
+	//Mess with the shape color
+	float timeValue = glfwGetTime();
+	float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
+	int vertexColorLocation = glGetUniformLocation(Globals.shader_program_name, "shapeColor");
+	glUseProgram(Globals.shader_program_name);
+	glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
+
 	//Draw
-	glUseProgram(Globals.shader_program_d);
+	glUseProgram(Globals.shader_program_name);
 	glBindVertexArray(Globals.VAO_name);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 	

@@ -1,5 +1,5 @@
 #include <glad/glad.h>
-#include <GLFW\glfw3.h>
+#include <GLFW/glfw3.h>
 
 #include <cstdio>
 #include <iostream>
@@ -31,13 +31,14 @@ int main(void)
 {
 	//Initialize GLFW
 	glfwInit();
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	///glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+	//glDebugMessageCallback
 
 	//Create a window, set context to current
-	mainWindow = new Window(600, 800, "CS230 Simple Demo");
+	mainWindow = new Window(600, 800, "CS230 Advanced Demo");
 
 	//Create Managers
 	Input = new InputManager;
@@ -57,7 +58,7 @@ int main(void)
 	glViewport(0, 0, 800, 600);
 
 	//make a quick shader program
-	Globals.shader_program_d = create_shader_program("vert.shader", "frag.shader");
+	Globals.shader_program_name = create_shader_program("vert.shader", "frag.shader");
 
 	//make a triangle
 	make_triangle_VBO();
