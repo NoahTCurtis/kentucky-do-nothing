@@ -22,7 +22,7 @@
     <ProjectGuid>{814B6DC1-5451-417B-847F-5FA2D9B1F6CE}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>Graphics</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -158,12 +158,15 @@
     <ClCompile Include="..\..\src\input_internal.cpp" />
     <ClCompile Include="..\..\src\main.cpp" />
     <ClCompile Include="..\..\src\main_loop.cpp" />
+    <ClCompile Include="..\..\src\shaders.cpp" />
     <ClCompile Include="..\..\src\window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\inc\Globals.h" />
     <ClInclude Include="..\..\inc\input.h" />
     <ClInclude Include="..\..\inc\input_internal.h" />
     <ClInclude Include="..\..\inc\main_loop.h" />
+    <ClInclude Include="..\..\inc\shaders.h" />
     <ClInclude Include="..\..\inc\window.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

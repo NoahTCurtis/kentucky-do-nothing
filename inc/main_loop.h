@@ -1,3 +1,4 @@
 #pragma once
 
-bool main_loop(unsigned shader_program);
+bool main_loop();
+void make_triangle_VBO();
