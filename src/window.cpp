@@ -7,12 +7,12 @@ Window* mainWindow;
 
 Window::Window(int vertical, int horizontal, const char* title)
 {
-  //make new window
-  window_ = glfwCreateWindow(horizontal, vertical, title, NULL, NULL);
+	//make new window
+	window_ = glfwCreateWindow(horizontal, vertical, title, NULL, NULL);
 
-  assert(window_ != NULL);
+	assert(window_ != NULL);
 
-  glfwMakeContextCurrent(window_);
+	glfwMakeContextCurrent(window_);
 
-  Input->RegisterWindow(window_);
+	Input->RegisterWindow(window_);
 }

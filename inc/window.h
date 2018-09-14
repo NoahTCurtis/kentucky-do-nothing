@@ -5,14 +5,14 @@
 class Window
 {
 public:
-  Window(int vertical, int horizontal, const char* title);
+	Window(int vertical, int horizontal, const char* title);
 
-  GLFWwindow* getGLFWwindow() { return window_; }
+	GLFWwindow* getGLFWwindow() { return window_; }
 
 private:
-  GLFWwindow* window_;
+	GLFWwindow* window_;
 
-  
+	
 };
 
 extern Window* mainWindow;

@@ -1,41 +1,61 @@
 #include <iostream>
+#include <fstream>
+#include <string>
+#include <direct.h>
+#include <cassert>
 
 #include <glad/glad.h>
 #include <GLFW\glfw3.h>
 
-unsigned int create_shader_program()
-{
-	char* vert_shader_src = "\
-    #version 330 core\n\
-	\n\
-    layout(location = 0) in vec3 aPos;\n\
-    \n\
-    void main()\n\
-    {\n\
-      gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n\
-    }\n\
-  ";
 
-	char* frag_shader_src = "\
-    #version 330 core\n\
-    out vec4 FragColor;\n\
-    \n\
-    void main()\n\
-    {\n\
-      FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n\
-    }\n\
-  ";
+
+
+std::string get_current_working_directory(void)
+{
+	char buff[512];
+	_getcwd(buff, FILENAME_MAX);
+	std::string current_working_dir(buff);
+	return current_working_dir;
+}
+
+
+std::string deserialize_shader(std::string filename)
+{
+	std::string cwd = get_current_working_directory();
+	std::ifstream ifs(cwd + "\\..\\..\\res\\" + filename, std::ifstream::in);
+	std::string output;
 	
+	char c = ifs.get();
+	assert(ifs.good());
+	
+	while (ifs.good()) {
+		output += c;
+		c = ifs.get();
+	}
+	
+	ifs.close();
+	return output;
+}
+
+
+GLuint create_shader_program(std::string vert_shader_filename, std::string frag_shader_filename)
+{
+	//Deserialize shaders
+	std::string vert_shader_src = deserialize_shader(vert_shader_filename);
+	const GLchar* vert_str = vert_shader_src.c_str();
+	std::string frag_shader_src = deserialize_shader(frag_shader_filename);
+	const GLchar* frag_str = frag_shader_src.c_str();
+
 	//Create Vertex Shader
 	unsigned int vert_shader_d;
 	vert_shader_d = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vert_shader_d, 1, &vert_shader_src, NULL);
+	glShaderSource(vert_shader_d, 1, &vert_str, NULL);
 	glCompileShader(vert_shader_d);
 
 	//Create Fragment Shader
 	unsigned int frag_shader_d;
 	frag_shader_d = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(frag_shader_d, 1, &frag_shader_src, NULL);
+	glShaderSource(frag_shader_d, 1, &frag_str, NULL);
 	glCompileShader(frag_shader_d);
 
 	//Create Shader Program
