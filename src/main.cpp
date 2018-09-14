@@ -26,6 +26,18 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 	glViewport(0, 0, width, height);
 }
 
+void debug_callback(GLenum source,
+	GLenum type,
+	GLuint id,
+	GLenum severity,
+	GLsizei length,
+	const GLchar *message,
+	const void *userParam)
+{
+	std::cout << "Error: OpenGL reported an error from " << source << ". Type: " << type << " ID: " << id << " Severity: " << severity << std::endl;
+	std::cout << message << std::endl;
+}
+
 
 int main(void)
 {
@@ -35,7 +47,6 @@ int main(void)
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	///glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-	//glDebugMessageCallback
 
 	//Create a window, set context to current
 	mainWindow = new Window(600, 800, "CS230 Advanced Demo");
@@ -56,6 +67,8 @@ int main(void)
 		return -1;
 	}
 	glViewport(0, 0, 800, 600);
+	//glDebugMessageCallback
+	glDebugMessageCallback(debug_callback, nullptr);
 
 	//make a quick shader program
 	Globals.shader_program_name = create_shader_program("vert.shader", "frag.shader");
