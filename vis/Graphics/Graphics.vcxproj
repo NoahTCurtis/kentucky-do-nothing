@@ -153,6 +153,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\src\callbacks.cpp" />
+    <ClCompile Include="..\..\src\camera.cpp" />
+    <ClCompile Include="..\..\src\clock.cpp" />
     <ClCompile Include="..\..\src\glad.c" />
     <ClCompile Include="..\..\src\input_interface.cpp" />
     <ClCompile Include="..\..\src\input_internal.cpp" />
@@ -162,6 +165,9 @@
     <ClCompile Include="..\..\src\window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\inc\callbacks.h" />
+    <ClInclude Include="..\..\inc\camera.h" />
+    <ClInclude Include="..\..\inc\clock.h" />
     <ClInclude Include="..\..\inc\Globals.h" />
     <ClInclude Include="..\..\inc\input.h" />
     <ClInclude Include="..\..\inc\input_internal.h" />

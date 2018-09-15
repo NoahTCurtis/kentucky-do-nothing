@@ -7,7 +7,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-
+#include <shaders.h>
 
 
 std::string get_current_working_directory(void)
