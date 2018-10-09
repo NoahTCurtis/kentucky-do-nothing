@@ -1,4 +1,5 @@
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include "window.h"
 #include "input.h"
@@ -39,4 +40,16 @@ glm::vec2 Window::get_size()
 	int x, y;
 	glfwGetWindowSize(window_, &x, &y);
 	return glm::vec2(x, y);
+}
+
+glm::mat4 Window::compute_perspective_matrix(float znear, float zfar)
+{
+	glm::vec2 size = get_size();
+	perspective_ = glm::perspective(glm::pi<float>() / 2.0f, size.x / size.y, znear, zfar);
+	return perspective_;
+}
+
+glm::mat4 Window::get_perspective_matrix()
+{
+	return perspective_;
 }

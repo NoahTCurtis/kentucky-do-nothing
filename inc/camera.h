@@ -6,13 +6,19 @@ class Camera
 {
 public:
 	Camera();
+	~Camera();
 
-	glm::mat4 world_to_camera();
+	void Update();
+
+	static Camera* get();
+
+	glm::mat4 get_world_to_camera_matrix();
 
 	glm::vec3 position;
 	glm::vec3 up;
 	glm::vec3 look;
 
 private:
-
+    static Camera* instance_;
 };
+

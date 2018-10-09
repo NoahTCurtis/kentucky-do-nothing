@@ -59,7 +59,7 @@ int main(void)
 	make_triangle_VBO();
 
 	//Main loop!
-	while ( main_loop() );
+	while ( main_loop() == false );
 
 	//Exit safely
 	delete mainWindow;

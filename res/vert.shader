@@ -8,6 +8,6 @@ uniform mat4 world2cam;
 
 void main()
 {
-    gl_Position = vec4(aPos, 1.0);
+    gl_Position = perspective * world2cam * vec4(aPos, 1.0);
     vertexColor = aColor;
 }

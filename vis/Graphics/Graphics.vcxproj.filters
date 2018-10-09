@@ -75,4 +75,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\res\frag.shader">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\..\res\vert.shader">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
 </Project>
