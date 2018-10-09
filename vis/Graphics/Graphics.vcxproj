@@ -157,6 +157,12 @@
     <ClCompile Include="..\..\src\camera.cpp" />
     <ClCompile Include="..\..\src\clock.cpp" />
     <ClCompile Include="..\..\src\glad.c" />
+    <ClCompile Include="..\..\src\imgui\imgui.cpp" />
+    <ClCompile Include="..\..\src\imgui\imgui_demo.cpp" />
+    <ClCompile Include="..\..\src\imgui\imgui_draw.cpp" />
+    <ClCompile Include="..\..\src\imgui\imgui_impl_glfw.cpp" />
+    <ClCompile Include="..\..\src\imgui\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="..\..\src\imgui\imgui_widgets.cpp" />
     <ClCompile Include="..\..\src\input_interface.cpp" />
     <ClCompile Include="..\..\src\input_internal.cpp" />
     <ClCompile Include="..\..\src\main.cpp" />
