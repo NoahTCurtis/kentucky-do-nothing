@@ -66,6 +66,12 @@
     <ClCompile Include="..\..\src\imgui\imgui_widgets.cpp">
       <Filter>Source Files\imgui</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\mesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\render.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\inc\main_loop.h">
@@ -83,9 +89,6 @@
     <ClInclude Include="..\..\inc\shaders.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\inc\Globals.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\inc\clock.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -95,12 +98,30 @@
     <ClInclude Include="..\..\inc\camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\inc\mesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\globals.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\vertex.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\render.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\res\frag.shader">
+    <None Include="..\..\res\line_vert.shader">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="..\..\res\vert.shader">
+    <None Include="..\..\res\mesh_frag.shader">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\..\res\mesh_vert.shader">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\..\res\line_frag.shader">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

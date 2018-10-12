@@ -1,5 +1,8 @@
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
+#include "glad/glad.h"
+#include "GLFW/glfw3.h"
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_glfw.h"
+#include "imgui/imgui_impl_opengl3.h"
 
 #include <cstdio>
 #include <iostream>
@@ -10,6 +13,7 @@
 #include "shaders.h"
 #include "Globals.h"
 #include "callbacks.h"
+#include "mesh.h"
 
 
 //Globals here
@@ -42,6 +46,7 @@ int main(void)
 	glViewport(0, 0, 800, 600);
 	//glDebugMessageCallback
 	glDebugMessageCallback(debug_callback, nullptr);
+	glEnable(GL_DEPTH_TEST);
 
 	//Set callbacks
 	glfwSetFramebufferSizeCallback(mainWindow->getGLFWwindow(), framebuffer_size_callback);
@@ -52,14 +57,27 @@ int main(void)
 	Input->Initialize();
 	Input->RegisterWindow(mainWindow->getGLFWwindow());
 
-	//make a quick shader program
-	Globals.shader_program_name = create_shader_program("vert.shader", "frag.shader");
+	// Setup Dear ImGui binding
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	ImGui_ImplGlfw_InitForOpenGL(mainWindow->getGLFWwindow(), false);
+	ImGui_ImplOpenGL3_Init("#version 330");
+	ImGui::StyleColorsDark();
 
-	//make a triangle
-	make_triangle_VBO();
+	//make a quick shader program (actually the renderer does this now)
+	//make a default mesh
+	meshes.push_back(new Mesh());
+	meshes.push_back(new Mesh());
+	(*meshes.begin())->worldPosition = glm::vec3(0, 1, -1);
 
 	//Main loop!
 	while ( main_loop() == false );
+
+	// Cleanup imgui
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplGlfw_Shutdown();
+	ImGui::DestroyContext();
 
 	//Exit safely
 	delete mainWindow;

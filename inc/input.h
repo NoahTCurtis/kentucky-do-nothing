@@ -261,14 +261,14 @@ public:
 	static float GetScroll();
 
 private:
-	/* GLFWcharfun				*/ ///static void charFunc_(GLFWwindow*, unsigned);
-	/* GLFWcharmodsfun		*/ ///static void charModsFunc_(GLFWwindow*, unsigned, int);
-	/* GLFWcursorenterfun */ ///static void cursorEnterFunc_(GLFWwindow*, int);
-	/* GLFWcursorposfun	 */ static void cursorPosFunc_(GLFWwindow*, double, double);
-	/* GLFWdropfun				*/ static void dropFunc_(GLFWwindow*, int, const char**);
-	/* GLFWkeyfun				 */ static void keyFunc_(GLFWwindow*, int, int, int, int);
-	/* GLFWmousebuttonfun */ static void mouseButtonFunc_(GLFWwindow*, int, int, int);
-	/* GLFWscrollfun			*/ static void scrollFunc_(GLFWwindow*, double, double);
+	/* GLFWcharfun		*/ static void charFunc_(GLFWwindow*, unsigned);
+	/* GLFWcharmodsfun	*/ ///static void charModsFunc_(GLFWwindow*, unsigned, int);
+	/* GLFWcursorenterfun	*/ ///static void cursorEnterFunc_(GLFWwindow*, int);
+	/* GLFWcursorposfun	*/ static void cursorPosFunc_(GLFWwindow*, double, double);
+	/* GLFWdropfun		*/ static void dropFunc_(GLFWwindow*, int, const char**);
+	/* GLFWkeyfun		*/ static void keyFunc_(GLFWwindow*, int, int, int, int);
+	/* GLFWmousebuttonfun	*/ static void mouseButtonFunc_(GLFWwindow*, int, int, int);
+	/* GLFWscrollfun	*/ static void scrollFunc_(GLFWwindow*, double, double);
 
 	static unsigned short* keys_;
 	static float* axes_;

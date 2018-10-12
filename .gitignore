@@ -12,6 +12,7 @@
 
 # directories
 docs/
+examples/
 vis/Release/
 vis/Debug/
 vis/x64/

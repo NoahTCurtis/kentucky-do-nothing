@@ -167,6 +167,8 @@
     <ClCompile Include="..\..\src\input_internal.cpp" />
     <ClCompile Include="..\..\src\main.cpp" />
     <ClCompile Include="..\..\src\main_loop.cpp" />
+    <ClCompile Include="..\..\src\mesh.cpp" />
+    <ClCompile Include="..\..\src\render.cpp" />
     <ClCompile Include="..\..\src\shaders.cpp" />
     <ClCompile Include="..\..\src\window.cpp" />
   </ItemGroup>
@@ -174,16 +176,21 @@
     <ClInclude Include="..\..\inc\callbacks.h" />
     <ClInclude Include="..\..\inc\camera.h" />
     <ClInclude Include="..\..\inc\clock.h" />
-    <ClInclude Include="..\..\inc\Globals.h" />
+    <ClInclude Include="..\..\inc\globals.h" />
     <ClInclude Include="..\..\inc\input.h" />
     <ClInclude Include="..\..\inc\input_internal.h" />
     <ClInclude Include="..\..\inc\main_loop.h" />
+    <ClInclude Include="..\..\inc\mesh.h" />
+    <ClInclude Include="..\..\inc\render.h" />
     <ClInclude Include="..\..\inc\shaders.h" />
+    <ClInclude Include="..\..\inc\vertex.h" />
     <ClInclude Include="..\..\inc\window.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\res\frag.shader" />
-    <None Include="..\..\res\vert.shader" />
+    <None Include="..\..\res\line_frag.shader" />
+    <None Include="..\..\res\line_vert.shader" />
+    <None Include="..\..\res\mesh_frag.shader" />
+    <None Include="..\..\res\mesh_vert.shader" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

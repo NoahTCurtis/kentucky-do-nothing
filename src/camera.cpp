@@ -10,8 +10,8 @@ Camera* Camera::instance_ = nullptr;
 
 Camera::Camera()
 {
-	position = glm::vec3(0, 0, 1);
-	look = glm::vec3(0, 0, -1);
+	position = glm::vec3(0, 1, 1);
+	look = glm::vec3(0, 1, -1);
 	up = glm::vec3(0,1, 0);
 }
 
@@ -35,9 +35,11 @@ Camera* Camera::get()
 
 void Camera::Update()
 {
+	//YO THIS SUCKS. MAKE A BETTER CAMERA CONTROLLER
+
 	glm::vec3 movement(Input->IsDown(Keys::D) - Input->IsDown(Keys::A),
 		Input->IsDown(Keys::W) - Input->IsDown(Keys::S),
 		Input->IsDown(Keys::E) - Input->IsDown(Keys::Q));
 	position += movement * clock.dt();
-	look = -position;
+	look = -position + up;
 }

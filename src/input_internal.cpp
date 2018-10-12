@@ -2,7 +2,9 @@
 #include <cstring>
 #include <cstdlib>
 
-#include <glm/glm.hpp>
+#include "glm/glm.hpp"
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_glfw.h"
 
 #include "window.h"
 #include "input.h"
@@ -108,11 +110,11 @@ void InputManager::RegisterWindow(GLFWwindow* window)
 
 
 void InputManager::keyFunc_(
-	GLFWwindow*, //window,
+	GLFWwindow* window,
 	int keycode,
-	int, //scancode,
+	int scancode,
 	int action,
-	int) //mode)
+	int mods)
 {
 	if (keycode > MOUSE_KEYS_NUM && keycode < ALL_KEYS_MAX)
 	{
@@ -126,24 +128,15 @@ void InputManager::keyFunc_(
 		}
 	}
 
-	///ImGuiIO& io = ImGui::GetIO();
-	///if (action == GLFW_PRESS)
-	///	io.KeysDown[keycode] = true;
-	///if (action == GLFW_RELEASE)
-	///	io.KeysDown[keycode] = false;
-	///
-	///io.KeyCtrl = io.KeysDown[GLFW_KEY_LEFT_CONTROL] || io.KeysDown[GLFW_KEY_RIGHT_CONTROL];
-	///io.KeyShift = io.KeysDown[GLFW_KEY_LEFT_SHIFT] || io.KeysDown[GLFW_KEY_RIGHT_SHIFT];
-	///io.KeyAlt = io.KeysDown[GLFW_KEY_LEFT_ALT] || io.KeysDown[GLFW_KEY_RIGHT_ALT];
-	///io.KeySuper = io.KeysDown[GLFW_KEY_LEFT_SUPER] || io.KeysDown[GLFW_KEY_RIGHT_SUPER];
+	ImGui_ImplGlfw_KeyCallback(window, keycode, scancode, action, mods);
 }
 
 
 void InputManager::mouseButtonFunc_(
-	GLFWwindow*,//window,
+	GLFWwindow* window,
 	int button,
 	int action,
-	int)//mods)
+	int mods)
 {
 	if (button >= 0 && button <= MOUSE_KEYS_NUM)
 	{
@@ -156,14 +149,18 @@ void InputManager::mouseButtonFunc_(
 			keys_[button] = KEY_IS_RELEASED;
 		}
 	}
+
+	ImGui_ImplGlfw_MouseButtonCallback(window, button, action, mods);
 }
 
 void InputManager::scrollFunc_(
-	GLFWwindow*,//window,
-	double,//xoffset,
+	GLFWwindow* window,
+	double xoffset,
 	double yoffset)
 {
 	scrollY_ += (float)yoffset;
+
+	ImGui_ImplGlfw_ScrollCallback(window, xoffset, yoffset);
 }
 
 void InputManager::cursorPosFunc_(
@@ -182,6 +179,11 @@ void InputManager::dropFunc_(GLFWwindow* window, int file_count, const char** fi
 	{
 		std::cout << file_names[i] << std::endl;
 	}
+}
+
+void InputManager::charFunc_(GLFWwindow* window, unsigned c)
+{
+	ImGui_ImplGlfw_CharCallback(window, c);
 }
 
 

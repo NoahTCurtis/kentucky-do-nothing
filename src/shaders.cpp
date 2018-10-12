@@ -3,11 +3,12 @@
 #include <string>
 #include <direct.h>
 #include <cassert>
+#include <utility>
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
+#include "glad/glad.h"
+#include "GLFW/glfw3.h"
 
-#include <shaders.h>
+#include "shaders.h"
 
 
 std::string get_current_working_directory(void)
@@ -22,8 +23,12 @@ std::string get_current_working_directory(void)
 std::string deserialize_shader(std::string filename)
 {
 	std::string cwd = get_current_working_directory();
-	std::ifstream ifs(cwd + "\\..\\..\\res\\" + filename, std::ifstream::in);
+	std::string filepath = cwd + "\\..\\..\\res\\" + filename;
+	std::ifstream ifs(filepath, std::ifstream::in);
 	std::string output;
+
+	std::cout << "Deserializing shader \"" << filename << "\" from \"" << cwd << "\"" << std::endl;
+	std::cout << "Trying to find it in \"" << filepath << "\"... " << std::flush;
 	
 	char c = ifs.get();
 	assert(ifs.good());
@@ -34,6 +39,13 @@ std::string deserialize_shader(std::string filename)
 	}
 	
 	ifs.close();
+	std::cout << "Success" << std::endl << std::endl;
+	return output;
+}
+
+std::pair<bool, std::string> attempt_to_deserialize_shader_with_path_offset(std::string filename, std::string offset)
+{
+	std::pair<bool, std::string> output;
 	return output;
 }
 
@@ -73,10 +85,7 @@ GLuint create_shader_program(std::string vert_shader_filename, std::string frag_
 		glGetProgramInfoLog(shader_prog_d, 512, NULL, infoLog);
 		std::cout << "Error: Shader program failed to link.\n" << infoLog << std::endl;
 	}
-
-
-	glUseProgram(shader_prog_d);
-
+	
 	glDeleteShader(vert_shader_d);
 	glDeleteShader(frag_shader_d);
 

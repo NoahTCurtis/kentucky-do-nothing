@@ -1,14 +1,14 @@
 #pragma once
 
-#include <glad/glad.h>
+#include "glad/glad.h"
+#include "glm/glm.hpp"
 //#include <GLFW/glfw3.h>
 
 
 struct GlobalData
 {
-	GLuint shader_program_name;
-	GLuint VBO_name;
-	GLuint VAO_name;
-	GLuint EBO_name;
+	GLuint mesh_shader_program_name;
+	GLuint line_shader_program_name;
+	glm::vec3 clear_color = { 0.2f, 0.3f, 0.3f };
 };
 extern struct GlobalData Globals;

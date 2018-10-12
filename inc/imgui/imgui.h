@@ -13,7 +13,7 @@
 #include IMGUI_USER_CONFIG
 #endif
 #if !defined(IMGUI_DISABLE_INCLUDE_IMCONFIG_H) || defined(IMGUI_INCLUDE_IMCONFIG_H)
-#include "imconfig.h"
+#include "imgui/imconfig.h"
 #endif
 
 #include <float.h>                  // FLT_MAX
@@ -1979,5 +1979,5 @@ struct ImFont
 
 // Include imgui_user.h at the end of imgui.h (convenient for user to only explicitly include vanilla imgui.h)
 #ifdef IMGUI_INCLUDE_IMGUI_USER_H
-#include "imgui_user.h"
+#include "imgui/imgui_user.h" //does not currently exist
 #endif
