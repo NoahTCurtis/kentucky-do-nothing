@@ -14,6 +14,7 @@ public:
 	~Mesh();
 
 	void create_default_mesh(); //(TEMP)
+	void create_from_obj(std::string filename);
 	glm::mat4 get_model_to_world_matrix();
 	void bind();
 

@@ -1,5 +1,11 @@
-#include "glm/gtc/matrix_transform.hpp"
+#include <vector>
+#include <string>
+#include <iostream>
+#include <fstream>
+#include <cassert>
 
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
 
 #include "mesh.h"
 #include "vertex.h"
@@ -15,6 +21,7 @@ Mesh::Mesh()
 
 Mesh::Mesh(std::string filename)
 {
+	create_from_obj(filename);
 }
 
 
@@ -63,6 +70,8 @@ void Mesh::create_default_mesh()
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
 }
+
+
 
 glm::mat4 Mesh::get_model_to_world_matrix()
 {

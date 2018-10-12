@@ -1,7 +1,6 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <direct.h>
 #include <cassert>
 #include <utility>
 
@@ -9,15 +8,7 @@
 #include "GLFW/glfw3.h"
 
 #include "shaders.h"
-
-
-std::string get_current_working_directory(void)
-{
-	char buff[512];
-	_getcwd(buff, FILENAME_MAX);
-	std::string current_working_dir(buff);
-	return current_working_dir;
-}
+#include "util.h"
 
 
 std::string deserialize_shader(std::string filename)
@@ -27,8 +18,8 @@ std::string deserialize_shader(std::string filename)
 	std::ifstream ifs(filepath, std::ifstream::in);
 	std::string output;
 
-	std::cout << "Deserializing shader \"" << filename << "\" from \"" << cwd << "\"" << std::endl;
-	std::cout << "Trying to find it in \"" << filepath << "\"... " << std::flush;
+	///std::cout << "Deserializing shader \"" << filename << "\" from \"" << cwd << "\"" << std::endl;
+	///std::cout << "Trying to find it in \"" << filepath << "\"... " << std::flush;
 	
 	char c = ifs.get();
 	assert(ifs.good());
@@ -39,7 +30,7 @@ std::string deserialize_shader(std::string filename)
 	}
 	
 	ifs.close();
-	std::cout << "Success" << std::endl << std::endl;
+	///std::cout << "Success" << std::endl << std::endl;
 	return output;
 }
 
