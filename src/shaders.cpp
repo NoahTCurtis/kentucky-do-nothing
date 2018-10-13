@@ -13,8 +13,7 @@
 
 std::string deserialize_shader(std::string filename)
 {
-	std::string cwd = get_current_working_directory();
-	std::string filepath = cwd + "\\..\\..\\res\\" + filename;
+	std::string filepath = get_full_file_path(filename, "res");
 	std::ifstream ifs(filepath, std::ifstream::in);
 	std::string output;
 

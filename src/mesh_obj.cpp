@@ -26,7 +26,7 @@ void ParseAndAddVert(std::vector<Vertex>& verts, std::string& string)
 {
 	static char buf[64];
 	float x, y, z;
-	strcpy(buf, string.c_str());
+	strcpy_s(buf, 64, string.c_str());
 	const char* str = buf + 1;
 	while (*str == ' ') str++;
 	x = (float)std::atof(str);
@@ -48,7 +48,7 @@ void ParseAndAddFace(std::vector<unsigned>& indices, std::string& string)
 {
 	static char buf[64];
 	unsigned p, q, r;
-	strcpy(buf, string.c_str());
+	strcpy_s(buf, 64, string.c_str());
 	const char* str = buf + 1;
 	while (*str == ' ') str++;
 	p = (unsigned)std::atoi(str);
