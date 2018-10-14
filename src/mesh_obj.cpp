@@ -9,6 +9,7 @@
 
 #include "mesh.h"
 #include "vertex.h"
+#include "util.h"
 
 std::vector<std::string> split(const char *str, char c = ' ')
 {
@@ -39,6 +40,7 @@ void ParseAndAddVert(std::vector<Vertex>& verts, std::string& string)
 
 	Vertex vert;
 	vert.position = glm::vec3(x, y, z);
+	vert.color = glm::vec3(randFloat01(), randFloat01(), randFloat01()); //(TEMP) PLEASE REMOVE
 	verts.push_back(vert);
 
 	//std::cout << "V {" << x << ", " << y << ", " << z << "}\n" << string << "\n";
@@ -68,15 +70,13 @@ void ParseAndAddFace(std::vector<unsigned>& indices, std::string& string)
 
 void Mesh::create_from_obj(std::string filename)
 {
-	
-
 	//std::stringstream strstr;
 	//strstr << ASSET_PATH << "models/" << objFile;
-	std::ifstream input = std::ifstream(filename);
+	std::string fullpath = get_full_file_path(filename, "res/models");
+	std::ifstream input = std::ifstream(fullpath);
 	assert(input.good());//"Cannot load mesh: assets/models/%s", objFile.c_str());
 
 	unsigned length;
-
 
 	input.seekg(0, std::ios::end);
 	length = (unsigned)input.tellg();
@@ -105,4 +105,5 @@ void Mesh::create_from_obj(std::string filename)
 	indices.shrink_to_fit();
 	
 	//Preprocess();
+	create_VAO_from_raw_data(vertices, indices);
 }

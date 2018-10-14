@@ -1,6 +1,7 @@
 #include <util.h>
 #include <direct.h>
 #include <fstream>
+#include <ctime>
 
 
 std::string get_current_working_directory(void)
@@ -29,4 +30,9 @@ std::string get_full_file_path(std::string filename, std::string directory)
 	std::string cwd = get_current_working_directory();
 	std::string fullpath = cwd + "\\..\\..\\" + strip_slashes(directory) + '\\' + strip_slashes(filename);
 	return fullpath;
+}
+
+float randFloat01()
+{
+	return (float)rand() / (float)RAND_MAX;
 }

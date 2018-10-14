@@ -87,7 +87,7 @@ bool main_loop()
 		mesh->bind();
 		glm::mat4 model2world = mesh->get_model_to_world_matrix();
 		glUniformMatrix4fv(glGetUniformLocation(Globals.mesh_shader_program_name, "model2world"), 1, GL_FALSE, &model2world[0][0]);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, mesh->indexCount, GL_UNSIGNED_INT, 0);
 	}
 
 	//draw debug lines

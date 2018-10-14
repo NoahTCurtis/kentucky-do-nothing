@@ -2,9 +2,12 @@
 
 #include <string>
 #include <list>
+#include <vector>
 
 #include "glad/glad.h"
 #include "glm/glm.hpp"
+
+#include "vertex.h"
 
 class Mesh
 {
@@ -15,14 +18,18 @@ public:
 
 	void create_default_mesh(); //(TEMP)
 	void create_from_obj(std::string filename);
+	void create_VAO_from_raw_data(std::vector<Vertex>& vertices, std::vector<unsigned>& indices);
 	glm::mat4 get_model_to_world_matrix();
 	void bind();
 
 	glm::vec3 worldPosition;
+	unsigned vertCount = -1;
+	unsigned indexCount = -1;
 private:
-	GLuint VBO_name;
-	GLuint VAO_name;
-	GLuint EBO_name;
+	GLuint VBO_name = -1;
+	GLuint VAO_name = -1;
+	GLuint EBO_name = -1;
+
 };
 
 extern std::list<Mesh*> meshes;

@@ -6,6 +6,7 @@
 
 #include <cstdio>
 #include <iostream>
+#include <ctime>
 
 #include "main_loop.h"
 #include "input.h"
@@ -19,10 +20,7 @@
 //Globals here
 struct GlobalData Globals;
 
-float randFloat01()
-{
-	return (float)rand() / (float)RAND_MAX;
-}
+
 
 int main(void)
 {
@@ -68,7 +66,7 @@ int main(void)
 	//make a quick shader program (actually the renderer does this now)
 	//make a default mesh
 	meshes.push_back(new Mesh());
-	meshes.push_back(new Mesh());
+	meshes.push_back(new Mesh("cube.obj"));
 	(*meshes.begin())->worldPosition = glm::vec3(0, 1, -1);
 
 	//Main loop!
