@@ -9,13 +9,14 @@
 
 #include "mesh.h"
 #include "vertex.h"
+#include "scene_loader.h"
+#include "util.h"
 
-std::list<Mesh*> meshes;
+std::list<Mesh*> Meshes;
 
 Mesh::Mesh()
 {
 	worldPosition = glm::vec3(0, 0, 0);
-	create_default_mesh();
 }
 
 
@@ -94,7 +95,7 @@ void Mesh::create_VAO_from_raw_data(std::vector<Vertex>& vertices, std::vector<u
 	//Generate and bind and allocate/fill the EBO
 	glGenBuffers(1, &EBO_name);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO_name);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(indices), &indices[0], GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(indices[0]), &indices[0], GL_STATIC_DRAW);
 
 	//Inform OpenGL of what the vert data is
 		//position attribute
@@ -109,7 +110,6 @@ void Mesh::create_VAO_from_raw_data(std::vector<Vertex>& vertices, std::vector<u
 }
 
 
-
 glm::mat4 Mesh::get_model_to_world_matrix()
 {
 	glm::mat4 ident = glm::mat4(1);
@@ -119,4 +119,11 @@ glm::mat4 Mesh::get_model_to_world_matrix()
 void Mesh::bind()
 {
 	glBindVertexArray(VAO_name);
+}
+
+
+void Mesh::randomize_vertex_colors(std::vector<Vertex>& verts)
+{
+	for (auto& vert : verts)
+		vert.color = glm::vec3(randFloat01(), randFloat01(), randFloat01());
 }

@@ -36,3 +36,8 @@ float randFloat01()
 {
 	return (float)rand() / (float)RAND_MAX;
 }
+
+float randRange(float min, float max)
+{
+	return randFloat01() * (max - min) + min;
+}

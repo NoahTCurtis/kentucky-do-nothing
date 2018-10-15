@@ -20,11 +20,7 @@
 #include "camera.h"
 #include "mesh.h"
 #include "render.h"
-
-///float randFloat01()
-///{
-///	return (float)rand() / (float)RAND_MAX;
-///}
+#include "util.h"
 
 
 bool main_loop()
@@ -33,21 +29,37 @@ bool main_loop()
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
-	ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
-	ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
+		ImGui::Begin("Editor");
+			ImGui::ColorEdit3("clear color", (float*)&Globals.clear_color);
+			if (ImGui::Button("Randomize Mesh positions"))
+			{
+				for (auto& mesh : Meshes)
+					mesh->worldPosition = glm::vec3(randRange(-5, 5), randRange(-5, 5), randRange(-5, 5));
+			}
+		ImGui::End();
 
-	static float f = 0.0f;
-	static int counter = 0;
-	ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-	ImGui::ColorEdit3("clear color", (float*)&Globals.clear_color); // Edit 3 floats representing a color
-	if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-		counter++;
-	ImGui::SameLine();
-	ImGui::Text("counter = %d", counter);
-	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-
-	ImGui::End();
+		ImGui::Begin("Meshes");
+			ImGui::TextColored(ImVec4(1,0,1,1), "There are %i meshes", Meshes.size());
+			int i = 1;
+			for(auto& mesh : Meshes)
+			{
+				ImGui::Separator();
+				ImGui::Text("Mesh #%i", i);
+				ImGui::Text("%i verts, %i tris", mesh->vertCount, mesh->indexCount / 3);
+				ImGui::InputFloat3("Position", reinterpret_cast<float*>(&mesh->worldPosition), 2);
+				ImGui::Checkbox("Visible", &mesh->visible);
+				i++;
+			}
+		ImGui::End();
 	ImGui::Render();
+
+	///ImGui_ImplOpenGL3_NewFrame();
+	///ImGui_ImplGlfw_NewFrame();
+	///ImGui::NewFrame();
+	///	ImGui::Begin("Meshes");
+	///		ImGui::ColorEdit3("clear color", (float*)&Globals.clear_color);
+	///	ImGui::End();
+	///ImGui::Render();
 
 	//Reload Shaders
 	if (Input->IsTriggered(Keys::F9))
@@ -82,8 +94,9 @@ bool main_loop()
 
 	//draw meshes
 	glUseProgram(Globals.mesh_shader_program_name);
-	for (auto& mesh : meshes)
+	for (auto& mesh : Meshes)
 	{
+		if (mesh->visible == false) continue;
 		mesh->bind();
 		glm::mat4 model2world = mesh->get_model_to_world_matrix();
 		glUniformMatrix4fv(glGetUniformLocation(Globals.mesh_shader_program_name, "model2world"), 1, GL_FALSE, &model2world[0][0]);
@@ -95,7 +108,6 @@ bool main_loop()
 	int gridSize = 7;
 	for (int i = -gridSize; i <= gridSize; i++)
 	{
-
 		dbl.start = glm::vec3(i, 0, -gridSize);
 		dbl.end = glm::vec3(i, 0, gridSize);
 		dbl.startcolor = dbl.endcolor = glm::vec3(1, 0.3f, 0.7f);

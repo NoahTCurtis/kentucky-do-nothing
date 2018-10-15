@@ -15,6 +15,8 @@
 #include "Globals.h"
 #include "callbacks.h"
 #include "mesh.h"
+#include "scene_loader.h"
+#include "util.h"
 
 
 //Globals here
@@ -64,10 +66,10 @@ int main(void)
 	ImGui::StyleColorsDark();
 
 	//make a quick shader program (actually the renderer does this now)
-	//make a default mesh
-	meshes.push_back(new Mesh());
-	meshes.push_back(new Mesh("cube.obj"));
-	(*meshes.begin())->worldPosition = glm::vec3(0, 1, -1);
+	//make meshes
+	Meshes.push_back(new Mesh("cube.obj"));
+	(*Meshes.begin())->worldPosition = glm::vec3(0, 1, -1);
+	ReadAssimpFile(get_full_file_path("alien.fbx", "res/models"));
 
 	//Main loop!
 	while ( main_loop() == false );

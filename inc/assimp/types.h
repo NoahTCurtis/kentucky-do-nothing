@@ -463,7 +463,7 @@ struct aiMemoryInfo
 	aiMemoryInfo()
 		: textures   (0)
 		, materials  (0)
-		, meshes     (0)
+		, Meshes     (0)
 		, nodes      (0)
 		, animations (0)
 		, cameras	 (0)
@@ -480,7 +480,7 @@ struct aiMemoryInfo
 	unsigned int materials;
 
 	/** Storage allocated for mesh data */
-	unsigned int meshes;
+	unsigned int Meshes;
 
 	/** Storage allocated for node data */
 	unsigned int nodes;

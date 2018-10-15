@@ -9,6 +9,7 @@
 *.ipch
 *.tlog
 *.idb
+*.suo
 
 # directories
 docs/

@@ -40,7 +40,6 @@ void ParseAndAddVert(std::vector<Vertex>& verts, std::string& string)
 
 	Vertex vert;
 	vert.position = glm::vec3(x, y, z);
-	vert.color = glm::vec3(randFloat01(), randFloat01(), randFloat01()); //(TEMP) PLEASE REMOVE
 	verts.push_back(vert);
 
 	//std::cout << "V {" << x << ", " << y << ", " << z << "}\n" << string << "\n";
@@ -61,9 +60,9 @@ void ParseAndAddFace(std::vector<unsigned>& indices, std::string& string)
 	while (*str == ' ') str++;
 	r = (unsigned)std::atoi(str);
 	
-	indices.push_back(p);
-	indices.push_back(q);
-	indices.push_back(r);
+	indices.push_back(p - 1);
+	indices.push_back(q - 1);
+	indices.push_back(r - 1);
 
 	//std::cout << "F {" << p << ", " << q << ", " << r << "}\n" << string << "\n";
 }
@@ -103,6 +102,8 @@ void Mesh::create_from_obj(std::string filename)
 
 	vertices.shrink_to_fit();
 	indices.shrink_to_fit();
+
+	randomize_vertex_colors(vertices);
 	
 	//Preprocess();
 	create_VAO_from_raw_data(vertices, indices);

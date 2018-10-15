@@ -9,6 +9,9 @@ Window* mainWindow;
 
 Window::Window(int vertical, int horizontal, const char* title)
 {
+	//hint what kind of window we want
+	//glfwWindowHint(GLFW_DECORATED, false);
+
 	//make new window
 	window_ = glfwCreateWindow(horizontal, vertical, title, NULL, NULL);
 
