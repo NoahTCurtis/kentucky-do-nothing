@@ -173,6 +173,7 @@
     <ClCompile Include="..\..\src\render.cpp" />
     <ClCompile Include="..\..\src\scene_loader.cpp" />
     <ClCompile Include="..\..\src\shaders.cpp" />
+    <ClCompile Include="..\..\src\skeleton.cpp" />
     <ClCompile Include="..\..\src\util.cpp" />
     <ClCompile Include="..\..\src\window.cpp" />
   </ItemGroup>
@@ -189,6 +190,7 @@
     <ClInclude Include="..\..\inc\render.h" />
     <ClInclude Include="..\..\inc\scene_loader.h" />
     <ClInclude Include="..\..\inc\shaders.h" />
+    <ClInclude Include="..\..\inc\skeleton.h" />
     <ClInclude Include="..\..\inc\util.h" />
     <ClInclude Include="..\..\inc\vertex.h" />
     <ClInclude Include="..\..\inc\window.h" />

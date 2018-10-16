@@ -11,10 +11,15 @@
 #include "assimp/Importer.hpp"
 #include "assimp/scene.h"
 #include "assimp/postprocess.h"
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
 
 #include "scene_loader.h"
 #include "mesh.h"
 #include "vertex.h"
+#include "render.h"
+#include "util.h"
+#include "skeleton.h"
 
 const int MAX = 3; // Loops will print at most MAX entries followed by an elipsis.
 
@@ -44,6 +49,7 @@ Mesh* convert_aimesh_to_kdnmesh(aiMesh* aimesh)
 {
 	//Make a mesh for the graphics system
 	Mesh* kdnMesh = new Mesh();
+	kdnMesh->name = std::string(aimesh->mName.C_Str());
 
 	std::vector<Vertex> kdnVertices;
 	kdnVertices.reserve(aimesh->mNumVertices);
@@ -142,13 +148,30 @@ void showBoneHierarchy(const aiScene* scene, const aiNode* node, const int level
 		showBoneHierarchy(scene, node->mChildren[i], level + 1);
 }
 
+
+void attempt_to_draw_skeleton(const aiScene* scene, const aiNode* node, glm::vec3 lastPoint)
+{
+	if (node == nullptr) return;
+
+	glm::mat4 trans = glm::translate(glm::mat4(1), glm::vec3(randFloat01(), 1, randFloat01()));
+
+	DebugLine dbl;
+	dbl.start = lastPoint;
+	dbl.end = trans * glm::vec4(lastPoint, 1);
+	dbl.startcolor = dbl.endcolor = glm::vec3(1, 0.3f, 0.7f);
+	Renderer::get()->add_debug_line(dbl);
+
+	for (unsigned int i = 0; i < node->mNumChildren; ++i)
+		attempt_to_draw_skeleton(scene, node->mChildren[i], dbl.end);
+}
+
 void ReadAssimpFile(const std::string& path)
 {
 	printf("Reading %s\n", path.c_str());
 	Assimp::Importer importer;
 
 	// A single call returning a single structure for the complete file.
-	const aiScene* scene = importer.ReadFile(path.c_str(),
+	scene = importer.ReadFile(path.c_str(),
 		aiProcess_Triangulate | aiProcess_GenNormals);
 
 	printf("  %d animations\n", scene->mNumAnimations); // This is what 460/560 is all about
@@ -159,6 +182,7 @@ void ReadAssimpFile(const std::string& path)
 
 	// Prints a graphical representation of the bone hierarchy.
 	showBoneHierarchy(scene, scene->mRootNode);
+	attempt_to_draw_skeleton(scene, scene->mRootNode, glm::vec3(0, 0, 0));
 
 	// Prints all the animation info for each animation in the file
 	printf("\n");
@@ -173,4 +197,3 @@ void ReadAssimpFile(const std::string& path)
 		Meshes.push_back(convert_aimesh_to_kdnmesh(scene->mMeshes[i]));
 	}
 }
-

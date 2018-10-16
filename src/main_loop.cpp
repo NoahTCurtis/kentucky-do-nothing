@@ -22,10 +22,12 @@
 #include "render.h"
 #include "util.h"
 #include "kdn_math.h"
+#include "scene_loader.h"
 
 
 bool main_loop()
 {
+
 	//Imgui
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
@@ -44,23 +46,21 @@ bool main_loop()
 			int i = 1;
 			for(auto& mesh : Meshes)
 			{
+				char label[256];
 				ImGui::Separator();
-				ImGui::Text("Mesh #%i", i);
-				ImGui::Text("%i verts, %i tris", mesh->vertCount, mesh->indexCount / 3);
-				ImGui::InputFloat3("Position", reinterpret_cast<float*>(&mesh->worldPosition), 2);
-				ImGui::Checkbox("Visible", &mesh->visible);
+				sprintf_s(label, 256, "%s", mesh->name.c_str(), i);
+				ImGui::Text(label);
+				sprintf_s(label, 256, "%i verts, %i tris", mesh->vertCount, mesh->indexCount / 3);
+				ImGui::Text(label);
+				sprintf_s(label, 256, "Position##%i", i);
+				ImGui::InputFloat3(label, reinterpret_cast<float*>(&mesh->worldPosition), 2);
+				sprintf_s(label, 256, "Visible##%i", i);
+				ImGui::Checkbox(label, &mesh->visible);
 				i++;
 			}
 		ImGui::End();
 	ImGui::Render();
 
-	///ImGui_ImplOpenGL3_NewFrame();
-	///ImGui_ImplGlfw_NewFrame();
-	///ImGui::NewFrame();
-	///	ImGui::Begin("Meshes");
-	///		ImGui::ColorEdit3("clear color", (float*)&Globals.clear_color);
-	///	ImGui::End();
-	///ImGui::Render();
 
 	//Reload Shaders
 	if (Input->IsTriggered(Keys::F9))
@@ -96,7 +96,14 @@ bool main_loop()
 	//draw meshes
 	glUseProgram(Globals.mesh_shader_program_name);
 	for (auto& mesh : Meshes)
-	{		
+	{
+		/*auto rot = glm::angleAxis(clock.dt() * 5.0f, glm::vec3(0, 1, 0));
+		rot = rot * mesh->worldRotation;
+		mesh->worldRotation.w = rot.w;
+		mesh->worldRotation.x = rot.x;
+		mesh->worldRotation.y = rot.y;
+		mesh->worldRotation.z = rot.z;//*/
+		
 		if (mesh->visible == false) continue;
 		mesh->bind();
 		glm::mat4 model2world = mesh->get_model_to_world_matrix();
@@ -104,7 +111,7 @@ bool main_loop()
 		glDrawElements(GL_TRIANGLES, mesh->indexCount, GL_UNSIGNED_INT, 0);
 	}
 
-	//draw debug lines
+	//create grid debug lines
 	DebugLine dbl;
 	int gridSize = 7;
 	for (int i = -gridSize; i <= gridSize; i++)
@@ -120,6 +127,7 @@ bool main_loop()
 	}
 
 	Renderer::get()->render_debug_lines();
+
 
 	//finish render
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

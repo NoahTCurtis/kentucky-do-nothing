@@ -12,6 +12,8 @@
 
 Renderer* Renderer::instance_;
 
+const aiScene* scene;
+
 Renderer::Renderer()
 {
 	//make some shaders

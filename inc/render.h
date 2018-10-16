@@ -3,6 +3,7 @@
 #include <vector>
 
 #include "glm/glm.hpp"
+#include "assimp/scene.h"
 
 typedef struct
 {
@@ -21,6 +22,7 @@ public:
 	void render_debug_lines();
 	void add_debug_line(DebugLine dl);
 	static Renderer* get();
+
 private:
 	static Renderer* instance_;
 	std::vector<DebugLine> DebugLines;
@@ -29,3 +31,5 @@ private:
 	GLuint line_VAO_name = -1;;
 	GLuint line_EBO_name = -1;;
 };
+
+extern const aiScene* scene;

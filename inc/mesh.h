@@ -25,6 +25,7 @@ public:
 	glm::mat4 get_model_to_world_matrix();
 	void bind();
 
+	std::string name;
 	unsigned vertCount = -1;
 	unsigned indexCount = -1;
 	bool visible = true;

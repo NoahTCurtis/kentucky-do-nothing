@@ -24,6 +24,7 @@ Mesh::Mesh(std::string filename)
 {
 	reset_transforms();
 	create_from_obj(filename);
+	name = std::string(filename.begin(), filename.end() - 4);
 }
 
 
