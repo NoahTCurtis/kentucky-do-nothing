@@ -142,7 +142,7 @@ void showBoneHierarchy(const aiScene* scene, const aiNode* node, const int level
 		showBoneHierarchy(scene, node->mChildren[i], level + 1);
 }
 
-void ReadAssimpFile(const string& path)
+void ReadAssimpFile(const std::string& path)
 {
 	printf("Reading %s\n", path.c_str());
 	Assimp::Importer importer;

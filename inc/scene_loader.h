@@ -6,7 +6,6 @@
 ////////////////////////////////////////////////////////////////////////
 
 #include <iostream>
-using namespace std;
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -28,4 +27,4 @@ void showAnimation(aiAnimation* anim);
 // Prints the bone hierarchy and relevant info with a graphical
 // representation of the hierarchy.
 void showBoneHierarchy(const aiScene* scene, const aiNode* node, const int level = 0);
-void ReadAssimpFile(const string& path);
+void ReadAssimpFile(const std::string& path);

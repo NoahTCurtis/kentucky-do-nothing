@@ -8,6 +8,7 @@
 #include "glm/glm.hpp"
 
 #include "vertex.h"
+#include "kdn_math.h"
 
 class Mesh
 {
@@ -16,6 +17,7 @@ public:
 	Mesh(std::string filename);
 	~Mesh();
 
+	void reset_transforms();
 	void create_default_mesh(); //(TEMP)
 	void create_from_obj(std::string filename);
 	void create_VAO_from_raw_data(std::vector<Vertex>& vertices, std::vector<unsigned>& indices);
@@ -23,10 +25,13 @@ public:
 	glm::mat4 get_model_to_world_matrix();
 	void bind();
 
-	glm::vec3 worldPosition;
 	unsigned vertCount = -1;
 	unsigned indexCount = -1;
 	bool visible = true;
+
+	glm::vec3 worldPosition;
+	glm::vec3 worldScale;
+	kdn::quat worldRotation;
 private:
 	GLuint VBO_name = -1;
 	GLuint VAO_name = -1;

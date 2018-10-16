@@ -21,6 +21,7 @@
 #include "mesh.h"
 #include "render.h"
 #include "util.h"
+#include "kdn_math.h"
 
 
 bool main_loop()
@@ -95,7 +96,7 @@ bool main_loop()
 	//draw meshes
 	glUseProgram(Globals.mesh_shader_program_name);
 	for (auto& mesh : Meshes)
-	{
+	{		
 		if (mesh->visible == false) continue;
 		mesh->bind();
 		glm::mat4 model2world = mesh->get_model_to_world_matrix();

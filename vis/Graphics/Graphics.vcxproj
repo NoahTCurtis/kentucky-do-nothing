@@ -165,6 +165,7 @@
     <ClCompile Include="..\..\src\imgui\imgui_widgets.cpp" />
     <ClCompile Include="..\..\src\input_interface.cpp" />
     <ClCompile Include="..\..\src\input_internal.cpp" />
+    <ClCompile Include="..\..\src\kdn_math.cpp" />
     <ClCompile Include="..\..\src\main.cpp" />
     <ClCompile Include="..\..\src\main_loop.cpp" />
     <ClCompile Include="..\..\src\mesh.cpp" />
@@ -182,6 +183,7 @@
     <ClInclude Include="..\..\inc\globals.h" />
     <ClInclude Include="..\..\inc\input.h" />
     <ClInclude Include="..\..\inc\input_internal.h" />
+    <ClInclude Include="..\..\inc\kdn_math.h" />
     <ClInclude Include="..\..\inc\main_loop.h" />
     <ClInclude Include="..\..\inc\mesh.h" />
     <ClInclude Include="..\..\inc\render.h" />

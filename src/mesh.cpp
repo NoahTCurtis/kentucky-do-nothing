@@ -16,14 +16,23 @@ std::list<Mesh*> Meshes;
 
 Mesh::Mesh()
 {
-	worldPosition = glm::vec3(0, 0, 0);
+	reset_transforms();
 }
 
 
 Mesh::Mesh(std::string filename)
 {
+	reset_transforms();
 	create_from_obj(filename);
+}
+
+
+void Mesh::reset_transforms()
+{
 	worldPosition = glm::vec3(0, 0, 0);
+	worldScale = glm::vec3(1, 1, 1);
+	worldRotation = kdn::quat();
+	worldRotation.w = 1;
 }
 
 
@@ -113,7 +122,7 @@ void Mesh::create_VAO_from_raw_data(std::vector<Vertex>& vertices, std::vector<u
 glm::mat4 Mesh::get_model_to_world_matrix()
 {
 	glm::mat4 ident = glm::mat4(1);
-	return glm::translate(ident, worldPosition);
+	return glm::translate(ident, worldPosition) * glm::toMat4(worldRotation) * glm::scale(ident, worldScale);
 }
 
 void Mesh::bind()
