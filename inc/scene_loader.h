@@ -27,5 +27,4 @@ void showAnimation(aiAnimation* anim);
 // Prints the bone hierarchy and relevant info with a graphical
 // representation of the hierarchy.
 void showBoneHierarchy(const aiScene* scene, const aiNode* node, const int level = 0);
-void attempt_to_draw_skeleton(const aiScene* scene, const aiNode* node, glm::vec3 lastPoint);
 void ReadAssimpFile(const std::string& path);

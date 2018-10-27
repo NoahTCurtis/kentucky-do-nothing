@@ -2,12 +2,37 @@
 
 #include <vector>
 #include <string>
+#include <map>
 
 #include "glm/glm.hpp"
 #include "assimp/scene.h"
+#include "kdn_math.h"
 
 class Skeleton;
 class Bone;
+
+
+class Skeleton
+{
+	friend class Bone;
+public:
+	Skeleton();
+	void Initialize(const aiScene* scene);
+	~Skeleton();
+
+	void DebugDraw();
+	void StartAnimation(int index);
+
+	std::vector<aiAnimation*> mAnimations;
+	float mAnimTime01 = 0.0f; //[0,1] progress through animation
+	float mAnimTime = 0.0f; //scaled progress through animation
+private:
+	Bone* mRootBone;
+	std::map<std::string, Bone*> mBoneMap;
+	int mCurrentAnimation = 0;
+
+	int calcium; //why not
+};
 
 
 class Bone
@@ -16,29 +41,28 @@ class Bone
 public:
 	Bone(const aiNode* node, Bone* parent);
 	~Bone();
+	void DebugDraw();
+	void ComputeAnimationVQS();
 
+	//structural data
 	std::string mName;
-	Bone* mParent;
-	glm::mat4 mTransform;
+	Skeleton* mSkeleton = nullptr;
+	Bone* mParent = nullptr;
 
-	unsigned mNumChildren;
+	//mathematical data
+	glm::mat4 mTransform; //boneSpace to parentBoneSpace
+	glm::mat4 mCompoundTransform; //boneSpace to modelSpace
+
+	//children
+	unsigned mNumChildren = -1;
 	std::vector<Bone*> mChildren;
 
+	//animation data
+	aiNodeAnim* mAiNodeAnim = nullptr;
+	glm::mat4 mAnimTransform;
+
 	/** The number of meshes of this node. */
-	unsigned mNumMeshes;
+	///unsigned mNumMeshes;
 	/** The meshes of this node. Each entry is an index into the mesh */
-	std::vector<unsigned> mMeshes;
+	///std::vector<unsigned> mMeshes;
 };
-
-
-class Skeleton
-{
-	friend class Bone;
-public:
-	Skeleton(const aiScene* scene);
-	~Skeleton();
-
-	Bone* root;
-};
-
-

@@ -27,7 +27,6 @@
 
 bool main_loop()
 {
-
 	//Imgui
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
@@ -48,7 +47,7 @@ bool main_loop()
 			{
 				char label[256];
 				ImGui::Separator();
-				sprintf_s(label, 256, "%s", mesh->name.c_str(), i);
+				sprintf_s(label, 256, "%s##%i", mesh->name.c_str(), i);
 				ImGui::Text(label);
 				sprintf_s(label, 256, "%i verts, %i tris", mesh->vertCount, mesh->indexCount / 3);
 				ImGui::Text(label);
@@ -56,6 +55,22 @@ bool main_loop()
 				ImGui::InputFloat3(label, reinterpret_cast<float*>(&mesh->worldPosition), 2);
 				sprintf_s(label, 256, "Visible##%i", i);
 				ImGui::Checkbox(label, &mesh->visible);
+				i++;
+			}
+		ImGui::End();
+
+		ImGui::Begin("Animations");
+			Skeleton& skel = Renderer::get()->skeleTemp;
+			ImGui::TextColored(ImVec4(1, 0, 1, 1), "There are %i animations", skel.mAnimations.size());
+			ImGui::SliderFloat("AnimTime01", &Renderer::get()->skeleTemp.mAnimTime01, 0, 1);
+			i = 0;
+			for (auto& anim : skel.mAnimations)
+			{
+				char label[256];
+				///ImGui::Separator();
+				sprintf_s(label, 256, "%s", anim->mName.C_Str());
+				if (ImGui::Button(label))
+					skel.StartAnimation(i);
 				i++;
 			}
 		ImGui::End();
@@ -126,6 +141,7 @@ bool main_loop()
 		Renderer::get()->add_debug_line(dbl);
 	}
 
+	Renderer::get()->skeleTemp.DebugDraw();
 	Renderer::get()->render_debug_lines();
 
 

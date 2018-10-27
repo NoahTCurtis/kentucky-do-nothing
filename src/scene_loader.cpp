@@ -100,6 +100,8 @@ void showAnimation(aiAnimation* anim)
 			chan->mNumRotationKeys,
 			chan->mNumScalingKeys);
 
+		continue;//REMOVE THIS (TEMP) LINE
+
 		// The position (V) keys
 		printf("\n");
 		for (int i = 0; i < (int)chan->mNumPositionKeys && i < MAX; i++) {
@@ -149,29 +151,12 @@ void showBoneHierarchy(const aiScene* scene, const aiNode* node, const int level
 }
 
 
-void attempt_to_draw_skeleton(const aiScene* scene, const aiNode* node, glm::vec3 lastPoint)
-{
-	if (node == nullptr) return;
-
-	glm::mat4 trans = glm::translate(glm::mat4(1), glm::vec3(randFloat01(), 1, randFloat01()));
-
-	DebugLine dbl;
-	dbl.start = lastPoint;
-	dbl.end = trans * glm::vec4(lastPoint, 1);
-	dbl.startcolor = dbl.endcolor = glm::vec3(1, 0.3f, 0.7f);
-	Renderer::get()->add_debug_line(dbl);
-
-	for (unsigned int i = 0; i < node->mNumChildren; ++i)
-		attempt_to_draw_skeleton(scene, node->mChildren[i], dbl.end);
-}
-
 void ReadAssimpFile(const std::string& path)
 {
 	printf("Reading %s\n", path.c_str());
-	Assimp::Importer importer;
 
 	// A single call returning a single structure for the complete file.
-	scene = importer.ReadFile(path.c_str(),
+	const aiScene* scene = Renderer::get()->scene = Renderer::get()->importer.ReadFile(path.c_str(),
 		aiProcess_Triangulate | aiProcess_GenNormals);
 
 	printf("  %d animations\n", scene->mNumAnimations); // This is what 460/560 is all about
@@ -182,7 +167,6 @@ void ReadAssimpFile(const std::string& path)
 
 	// Prints a graphical representation of the bone hierarchy.
 	showBoneHierarchy(scene, scene->mRootNode);
-	attempt_to_draw_skeleton(scene, scene->mRootNode, glm::vec3(0, 0, 0));
 
 	// Prints all the animation info for each animation in the file
 	printf("\n");
@@ -196,4 +180,6 @@ void ReadAssimpFile(const std::string& path)
 		showMesh(scene->mMeshes[i]);
 		Meshes.push_back(convert_aimesh_to_kdnmesh(scene->mMeshes[i]));
 	}
+
+	Renderer::get()->skeleTemp.Initialize(scene);
 }
