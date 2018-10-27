@@ -5,6 +5,7 @@
 
 #include "skeleton.h"
 #include "render.h"
+#include "input.h"
 
 Skeleton::Skeleton()
 {}
@@ -36,7 +37,7 @@ void Skeleton::DebugDraw()
 
 	//draw
 	if (mRootBone != nullptr)
-		mRootBone->DebugDraw();
+		mRootBone->DebugDraw(glm::mat4(1));
 
 	//std::cout << mCurrentAnimation << "================================================================" << std::endl;
 }
@@ -86,16 +87,14 @@ Bone::~Bone()
 	//SHOULD DESTROY ALL CHILDREN
 }
 
-void Bone::DebugDraw()
+void Bone::DebugDraw(glm::mat4& parentCompound)
 {
 	//extract animation data
 	ComputeAnimationVQS();
 
 	//compute worldspace start/end points
-	glm::mat4 parentTransform = glm::mat4(1);
-	if (mParent != nullptr)
-		parentTransform = mParent->mCompoundTransform;
-	glm::vec3 startpos = glm::vec3(parentTransform * glm::vec4(0, 0, 0, 1.0f));
+	mCompoundTransform = parentCompound * mAnimTransform * mTransform;
+	glm::vec3 startpos = glm::vec3(parentCompound * glm::vec4(0, 0, 0, 1.0f));
 	glm::vec3 endpos = glm::vec3(mCompoundTransform * glm::vec4(0, 0, 0, 1.0f));
 	
 	//create debug line
@@ -106,10 +105,10 @@ void Bone::DebugDraw()
 	dl.endcolor = glm::vec3(0, 1, 0);
 
 	//(TEMP) BADLY SCALE DOWN! REMOVE THIS!
-	dl.start = dl.start * 0.02f;
-	dl.end = dl.end * 0.02f;
+	dl.start = dl.start * 0.01f;
+	dl.end = dl.end *     0.01f;
 
-	//skip thhis one if its not a "real bone"
+	//only draw "real bones"
 	if(mName.find("IK") == std::string::npos)
 		Renderer::get()->add_debug_line(dl);
 
@@ -117,12 +116,16 @@ void Bone::DebugDraw()
 	///	<< dl.end.x << ", " << dl.end.y << ", " << dl.end.z << ")\n";
 
 	for (unsigned i = 0; i < mNumChildren; i++)
-		mChildren[i]->DebugDraw();
+		mChildren[i]->DebugDraw(mCompoundTransform);
 }
 
 void Bone::ComputeAnimationVQS()
 {
-	if (mAiNodeAnim == nullptr) return;
+	if (mAiNodeAnim == nullptr)
+	{
+		mAnimTransform = glm::mat4(1);
+		return;
+	}
 
 	//make the keys
 	aiVectorKey aiVecA;
@@ -159,13 +162,29 @@ void Bone::ComputeAnimationVQS()
 	//Interpolate between A-B keys
 	aiVectorKey aiVec = aiVecA;
 	aiQuatKey aiQuat = aiQuatA;
-	aiVectorKey aiScale = aiScale;
+	aiVectorKey aiScale = aiScaleA;
 
+	//convert to glm/kdn
 	glm::vec3 translateKey(aiVec.mValue.x, aiVec.mValue.y, aiVec.mValue.z);
 	kdn::quat rotateKey(aiQuat.mValue);
 	glm::vec3 scaleKey(aiScale.mValue.x, aiScale.mValue.y, aiScale.mValue.z);
 
 	//create VQS matrix
 	glm::mat4 ident(1);
-	mAnimTransform = glm::translate(ident, translateKey) * rotateKey.mat4() * glm::scale(ident, scaleKey);
+	glm::mat4 rot = rotateKey.mat4();
+
+	//AAAAAAA
+	//if(mName.compare("upperarm.L"))
+	//	rot = glm::mat4(1);
+	//else
+	//{
+	//	rot = rotateKey.mat4();
+	//}
+
+	if(Input->IsDown(Keys::F))
+		rot = glm::mat4(1);
+	///if (Input->IsDown(Keys::R))
+	///	rot = kdn::to_mat4(aiQuat.mValue);
+
+	mAnimTransform = rot;// glm::translate(ident, translateKey) * rot * glm::scale(ident, scaleKey);
 }

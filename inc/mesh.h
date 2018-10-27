@@ -28,7 +28,7 @@ public:
 	std::string name;
 	unsigned vertCount = -1;
 	unsigned indexCount = -1;
-	bool visible = true;
+	bool visible = false;
 
 	glm::vec3 worldPosition;
 	glm::vec3 worldScale;

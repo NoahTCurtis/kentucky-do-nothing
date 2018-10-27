@@ -1,4 +1,7 @@
 #include <cassert>
+
+//#include "assimp/matrix3x3.h"
+
 #include "kdn_math.h"
 
 kdn::quat::quat()
@@ -33,4 +36,15 @@ kdn::basis& kdn::basis::transform(glm::mat4 & mat)
 	y = glm::vec3(mat * glm::vec4(y, 0.0));
 	z = glm::vec3(mat * glm::vec4(z, 0.0));
 	return *this;
+}
+
+glm::mat4 kdn::to_mat4(const aiQuaternion & aiQ)
+{
+	//assert(sizeof(glm::mat3) == sizeof(aiMatrix3x3t<float>));
+	//aiMatrix3x3t<float> aiMat3 = aiQ.GetMatrix();
+	//glm::mat3 mat3;
+	//std::memcpy(&mat3[0][0], &aiMat3[0][0], sizeof(glm::mat3));
+	//glm::transpose(mat3);
+	//return glm::mat4(mat3);
+	return glm::mat4(1);
 }

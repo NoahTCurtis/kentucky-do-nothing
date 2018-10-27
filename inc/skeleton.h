@@ -41,7 +41,7 @@ class Bone
 public:
 	Bone(const aiNode* node, Bone* parent);
 	~Bone();
-	void DebugDraw();
+	void DebugDraw(glm::mat4& parentCompound);
 	void ComputeAnimationVQS();
 
 	//structural data

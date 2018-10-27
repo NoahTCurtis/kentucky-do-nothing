@@ -27,4 +27,6 @@ namespace kdn
 		basis& transform(glm::mat4& mat);
 	private:
 	};
+
+	glm::mat4 to_mat4(const aiQuaternion& aiQ);
 } //end of kdn namespace
