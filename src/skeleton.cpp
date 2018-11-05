@@ -8,7 +8,9 @@
 #include "input.h"
 
 Skeleton::Skeleton()
-{}
+{
+	
+}
 
 void Skeleton::Initialize(const aiScene* scene)
 {
@@ -37,7 +39,7 @@ void Skeleton::DebugDraw()
 
 	//draw
 	if (mRootBone != nullptr)
-		mRootBone->DebugDraw(glm::mat4(1));
+		mRootBone->DebugDraw(modelToWorld.toMat4());
 
 	//std::cout << mCurrentAnimation << "================================================================" << std::endl;
 }
@@ -71,7 +73,7 @@ Bone::Bone(const aiNode* node, Bone* parent)
 	//calculate local data
 	mCompoundTransform = (parent != nullptr) ? parent->mCompoundTransform : glm::mat4(1);
 	mCompoundTransform = mCompoundTransform * mTransform;
-	mAnimTransform = glm::mat4(1);
+	mAnimTransform = kdn::vqs();
 
 	//copy children
 	mNumChildren = node->mNumChildren;
@@ -89,11 +91,14 @@ Bone::~Bone()
 
 void Bone::DebugDraw(glm::mat4& parentCompound)
 {
+	//this better work
+	assert(mAiNodeAnim == nullptr || mName.compare(mAiNodeAnim->mNodeName.C_Str()) == 0);
+
 	//extract animation data
 	ComputeAnimationVQS();
 
 	//compute worldspace start/end points
-	mCompoundTransform = parentCompound * mAnimTransform * mTransform;
+	mCompoundTransform = parentCompound * (mAnimTransform * mTransform);
 	glm::vec3 startpos = glm::vec3(parentCompound * glm::vec4(0, 0, 0, 1.0f));
 	glm::vec3 endpos = glm::vec3(mCompoundTransform * glm::vec4(0, 0, 0, 1.0f));
 	
@@ -103,10 +108,6 @@ void Bone::DebugDraw(glm::mat4& parentCompound)
 	dl.end = endpos;
 	dl.startcolor = glm::vec3(1, 0, 1);
 	dl.endcolor = glm::vec3(0, 1, 0);
-
-	//(TEMP) BADLY SCALE DOWN! REMOVE THIS!
-	dl.start = dl.start * 0.01f;
-	dl.end = dl.end *     0.01f;
 
 	//only draw "real bones"
 	if(mName.find("IK") == std::string::npos)
@@ -123,7 +124,7 @@ void Bone::ComputeAnimationVQS()
 {
 	if (mAiNodeAnim == nullptr)
 	{
-		mAnimTransform = glm::mat4(1);
+		mAnimTransform = kdn::vqs();
 		return;
 	}
 
@@ -166,25 +167,36 @@ void Bone::ComputeAnimationVQS()
 
 	//convert to glm/kdn
 	glm::vec3 translateKey(aiVec.mValue.x, aiVec.mValue.y, aiVec.mValue.z);
-	kdn::quat rotateKey(aiQuat.mValue);
+	glm::quat rotateKey; // (aiQuat.mValue);
+	rotateKey.w = aiQuat.mValue.w;
+	rotateKey.x = aiQuat.mValue.x;
+	rotateKey.y = aiQuat.mValue.y;
+	rotateKey.z = aiQuat.mValue.z;
 	glm::vec3 scaleKey(aiScale.mValue.x, aiScale.mValue.y, aiScale.mValue.z);
 
-	//create VQS matrix
-	glm::mat4 ident(1);
-	glm::mat4 rot = rotateKey.mat4();
+	//ignore this (TEMP)
+	if (Input->IsDown(Keys::F))
+	{
+		rotateKey.w = 1;
+		rotateKey.x = rotateKey.y = rotateKey.z = 0;
+	}
+	if (Input->IsDown(Keys::R))
+	{
+		if (mName.compare("upperarm.L") == 0)
+		{
+			rotateKey.x = 0.707106781186f;
+			rotateKey.y = 0;
+			rotateKey.z = 0;
+			rotateKey.w = 0.707106781186f;
+			if (Input->IsDown(Keys::T))
+				rotateKey = glm::inverse(rotateKey);
+		}
+		else
+		{
+			rotateKey.w = 1;
+			rotateKey.x = rotateKey.y = rotateKey.z = 0;
+		}
+	}
 
-	//AAAAAAA
-	//if(mName.compare("upperarm.L"))
-	//	rot = glm::mat4(1);
-	//else
-	//{
-	//	rot = rotateKey.mat4();
-	//}
-
-	if(Input->IsDown(Keys::F))
-		rot = glm::mat4(1);
-	///if (Input->IsDown(Keys::R))
-	///	rot = kdn::to_mat4(aiQuat.mValue);
-
-	mAnimTransform = rot;// glm::translate(ident, translateKey) * rot * glm::scale(ident, scaleKey);
+	mAnimTransform = kdn::vqs(translateKey, rotateKey, scaleKey);
 }

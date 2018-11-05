@@ -26,6 +26,8 @@ public:
 	std::vector<aiAnimation*> mAnimations;
 	float mAnimTime01 = 0.0f; //[0,1] progress through animation
 	float mAnimTime = 0.0f; //scaled progress through animation
+
+	kdn::vqs modelToWorld;
 private:
 	Bone* mRootBone;
 	std::map<std::string, Bone*> mBoneMap;
@@ -59,7 +61,8 @@ public:
 
 	//animation data
 	aiNodeAnim* mAiNodeAnim = nullptr;
-	glm::mat4 mAnimTransform;
+	kdn::vqs mAnimTransform;
+	
 
 	/** The number of meshes of this node. */
 	///unsigned mNumMeshes;

@@ -69,7 +69,7 @@ int main(void)
 	//make meshes
 	Meshes.push_back(new Mesh("cube.obj"));
 	(*Meshes.begin())->worldPosition = glm::vec3(0, 1, -1);
-	ReadAssimpFile(get_full_file_path("alien.fbx", "res/models"));
+	ReadAssimpFile(get_full_file_path("alien.fbx", "res\\models"));
 
 	//Main loop!
 	while ( main_loop() == false );

@@ -63,6 +63,8 @@ bool main_loop()
 			Skeleton& skel = Renderer::get()->skeleTemp;
 			ImGui::TextColored(ImVec4(1, 0, 1, 1), "There are %i animations", skel.mAnimations.size());
 			ImGui::SliderFloat("AnimTime01", &Renderer::get()->skeleTemp.mAnimTime01, 0, 1);
+			ImGui::SliderFloat("QuaternionScale", &Globals.quatExponent, 0, 5);
+			ImGui::Checkbox("Animate on curve", &Globals.animateOnCurve);
 			i = 0;
 			for (auto& anim : skel.mAnimations)
 			{
@@ -73,7 +75,39 @@ bool main_loop()
 					skel.StartAnimation(i);
 				i++;
 			}
+			ImGui::Separator();
+			if (ImGui::Button("Reset"))
+				Globals.quatDebugVec = glm::vec3(0);
+			ImGui::SameLine();
+			ImGui::SliderFloat3("QuatDebugger", &Globals.quatDebugVec[0], -1.0f, 1.0f);
 		ImGui::End();
+
+		//*
+		ImGui::Begin("Curve Editor");
+			ImGui::InputInt("Line Segments (ignore)", &Globals.curve.lineSegments);
+			if(!ImGui::Checkbox("Show individual curves", &Globals.curve.showOriginalCurves))
+			{
+				ImGui::Checkbox("Apply Smoothing", &Globals.curve.useSmoothness);
+			}
+			ImGui::Separator();
+			ImGui::Text("Add/Remove Points");
+			ImGui::SameLine();
+			if(ImGui::Button("+"))
+			{
+				Globals.curve.push();
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("-"))
+			{
+				Globals.curve.pop();
+			}
+			for (int i = 0; i < Globals.curve.points.size(); i++)
+			{
+				char label[256];
+				sprintf_s(label, 256, "Point##%i", i);
+				ImGui::InputFloat3(label, reinterpret_cast<float*>(&Globals.curve.points[i]), 2);
+			}
+		ImGui::End();//*/
 	ImGui::Render();
 
 
@@ -82,7 +116,7 @@ bool main_loop()
 	{
 		glUseProgram(0);
 		glDeleteProgram(Globals.mesh_shader_program_name);
-		Globals.mesh_shader_program_name = create_shader_program("vert.shader", "frag.shader");
+		Globals.mesh_shader_program_name = create_shader_program("mesh_vert.shader", "mesh_frag.shader");
 	}
 
 	//update systems
@@ -141,6 +175,16 @@ bool main_loop()
 		Renderer::get()->add_debug_line(dbl);
 	}
 
+	//position the animation
+	float scalef = 0.01f;
+	Renderer::get()->skeleTemp.modelToWorld.s = glm::vec3(scalef);
+	if (Globals.animateOnCurve)
+		Renderer::get()->skeleTemp.modelToWorld.v = Globals.curve(Renderer::get()->skeleTemp.mAnimTime01);
+	else
+		Renderer::get()->skeleTemp.modelToWorld.v = glm::vec3(0);
+
+	//draw things other than meshes
+	Globals.curve.DebugDraw();
 	Renderer::get()->skeleTemp.DebugDraw();
 	Renderer::get()->render_debug_lines();
 

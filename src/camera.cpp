@@ -40,6 +40,18 @@ void Camera::Update()
 	glm::vec3 movement(Input->IsDown(Keys::D) - Input->IsDown(Keys::A),
 		Input->IsDown(Keys::W) - Input->IsDown(Keys::S),
 		Input->IsDown(Keys::E) - Input->IsDown(Keys::Q));
+
+	glm::vec3 localRight = glm::normalize(glm::cross(look, up));
+	glm::vec3 localUp = glm::normalize(glm::cross(localRight, look));
+	glm::vec3 localLook = glm::normalize(look);
+
+	//*
 	position += movement * clock.dt();
+	/*/
+	position += movement.x * localRight * clock.dt();
+	position += movement.y * localLook * clock.dt();
+	position += movement.z * localUp * clock.dt();
+	//*/
+
 	look = -position + up;
 }

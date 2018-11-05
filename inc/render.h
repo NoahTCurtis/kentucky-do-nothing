@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "glad/glad.h"
+///#include "glad/glad.h"
 #include "glm/glm.hpp"
 #include "assimp/scene.h"
 #include "assimp/Importer.hpp"
@@ -35,7 +35,7 @@ private:
 	static Renderer* instance_;
 	std::vector<DebugLine> DebugLines;
 
-	GLuint line_VBO_name = -1;
-	GLuint line_VAO_name = -1;
-	GLuint line_EBO_name = -1;
+	unsigned int line_VBO_name = -1;
+	unsigned int line_VAO_name = -1;
+	unsigned int line_EBO_name = -1;
 };

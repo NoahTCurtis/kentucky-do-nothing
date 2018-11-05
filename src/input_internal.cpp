@@ -95,7 +95,7 @@ InputManager::~InputManager()
 
 void InputManager::RegisterWindow(GLFWwindow* window)
 {
-	///glfwSetCharCallback(window, charFunc_);
+	glfwSetCharCallback(window, charFunc_);
 	///glfwSetCharModsCallback(window, charModsFunc_);
 	///glfwSetCursorEnterCallback(window, cursorEnterFunc_);
 	glfwSetCursorPosCallback(window, cursorPosFunc_);

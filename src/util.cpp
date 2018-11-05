@@ -2,7 +2,7 @@
 #include <direct.h>
 #include <fstream>
 #include <ctime>
-
+#include <cmath>
 
 std::string get_current_working_directory(void)
 {
@@ -40,4 +40,16 @@ float randFloat01()
 float randRange(float min, float max)
 {
 	return randFloat01() * (max - min) + min;
+}
+
+float sinEase01(float t)
+{
+	float PI = 3.1415926535f;
+	return (sin(PI*(t-0.5f))+1.0f) / 2.0f;
+}
+
+float sinEase010(float t)
+{
+	float PI = 3.1415926535f;
+	return (sin(2.0f * PI * t - PI / 2.0f) + 1.0f) / 2.0f;
 }

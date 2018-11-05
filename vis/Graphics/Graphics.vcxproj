@@ -82,7 +82,7 @@
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LinkIncremental>false</LinkIncremental>
+    <LinkIncremental>true</LinkIncremental>
     <IncludePath>C:\Users\Noah\OneDrive\Documents\gl\inc;..\inc;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Users\Noah\OneDrive\Documents\gl\lib;..\lib;$(LibraryPath)</LibraryPath>
     <SourcePath>C:\Users\Noah\OneDrive\Documents\gl\src;..\src;$(SourcePath)</SourcePath>
@@ -142,7 +142,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Users\Noah\OneDrive\Documents\gl\inc;..\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../inc/;../../inc/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -150,12 +150,14 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>opengl32.lib;glfw3.lib;assimp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>../../lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\callbacks.cpp" />
     <ClCompile Include="..\..\src\camera.cpp" />
     <ClCompile Include="..\..\src\clock.cpp" />
+    <ClCompile Include="..\..\src\curve.cpp" />
     <ClCompile Include="..\..\src\glad.c" />
     <ClCompile Include="..\..\src\imgui\imgui.cpp" />
     <ClCompile Include="..\..\src\imgui\imgui_demo.cpp" />
@@ -181,6 +183,7 @@
     <ClInclude Include="..\..\inc\callbacks.h" />
     <ClInclude Include="..\..\inc\camera.h" />
     <ClInclude Include="..\..\inc\clock.h" />
+    <ClInclude Include="..\..\inc\curve.h" />
     <ClInclude Include="..\..\inc\globals.h" />
     <ClInclude Include="..\..\inc\input.h" />
     <ClInclude Include="..\..\inc\input_internal.h" />
