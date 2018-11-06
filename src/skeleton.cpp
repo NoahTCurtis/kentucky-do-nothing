@@ -99,7 +99,6 @@ void Bone::DebugDraw(glm::mat4& parentCompound)
 
 	//compute worldspace start/end points
 	mCompoundTransform = parentCompound * mAnimTransform.toMat4();
-	//mCompoundTransform = parentCompound * mTransform;
 	glm::vec3 startpos = glm::vec3(parentCompound * glm::vec4(0, 0, 0, 1.0f));
 	glm::vec3 endpos = glm::vec3(mCompoundTransform * glm::vec4(0, 0, 0, 1.0f));
 	
