@@ -17,5 +17,6 @@ examples/
 vis/Release/
 vis/Debug/
 vis/x64/
+vis/.vs/
 **/Debug/
 **/x64/
