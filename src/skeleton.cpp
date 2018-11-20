@@ -28,25 +28,33 @@ void Skeleton::Initialize(const aiScene* scene)
 Skeleton::~Skeleton()
 {
 	//SHOULD TELL ROOT BONE TO DESTROY ITS CHILDREN
+	delete mRootBone;
+}
+
+void Skeleton::Update(float dt)
+{
+	aiAnimation* anim = mAnimations[mCurrentAnimation];
+
+	mAnimTime += dt;
+
+	if (mAnimTime > (float)anim->mDuration) mAnimTime -= (float)anim->mDuration;
+	
+	mAnimTime01 = mAnimTime / (float)anim->mDuration;
+
+	//draw
+	DebugDraw();
 }
 
 void Skeleton::DebugDraw()
 {
-	//compute animTime
-	aiAnimation* anim = mAnimations[mCurrentAnimation];
-	mAnimTime = mAnimTime01 * (float)anim->mDuration;
-	///mAnimTime = (float)((double)mAnimTime01 * anim->mDuration / anim->mTicksPerSecond);
-
-	//draw
 	if (mRootBone != nullptr)
 		mRootBone->DebugDraw(modelToWorld.toMat4());
-
-	//std::cout << mCurrentAnimation << "================================================================" << std::endl;
 }
 
 void Skeleton::StartAnimation(int index)
 {
 	mCurrentAnimation = index;
+	mAnimTime = mAnimTime01 = 0.0f;
 
 	//inform the bones of their new aiNodeAnim's
 	aiAnimation* anim = mAnimations[mCurrentAnimation];
@@ -86,12 +94,13 @@ Bone::Bone(const aiNode* node, Bone* parent)
 
 Bone::~Bone()
 {
-	//SHOULD DESTROY ALL CHILDREN
+	for (unsigned i = 0; i < mNumChildren; i++)
+		delete mChildren[i];
 }
 
 void Bone::DebugDraw(glm::mat4& parentCompound)
 {
-	//this better work
+	//dont do dumb stuff
 	assert(mAiNodeAnim == nullptr || mName.compare(mAiNodeAnim->mNodeName.C_Str()) == 0);
 
 	//extract animation data
@@ -106,12 +115,44 @@ void Bone::DebugDraw(glm::mat4& parentCompound)
 	DebugLine dl;
 	dl.start = startpos;
 	dl.end = endpos;
-	dl.startcolor = glm::vec3(1, 0, 1);
-	dl.endcolor = glm::vec3(0, 1, 0);
+	dl.startcolor = glm::vec3(1, 1, 1);
+	dl.endcolor = glm::vec3(1, 1, 1);
 
 	//only draw "real bones"
-	if(mName.find("IK") == std::string::npos)
+	if (mName.find("IK") == std::string::npos
+		&& mName.compare("Armature")
+		&& mName.compare("Circle")
+		&& mName.compare("Sphere")
+		&& mName.compare("RootNode")
+		&& mName.compare("root"))
+	{
 		Renderer::get()->add_debug_line(dl);
+	}
+
+	//TELL ME! TELL ME ABOUT THE BONESSSS!!!
+	if (Input->IsTriggered(Keys::B))
+	{
+		if(mName.compare("RootNode") == 0)
+			std::cout << "\n\n\n";
+		std::cout
+			<< "["
+			<< glm::distance(dl.start, dl.end)
+			<< "] "
+			<< mName
+			<< " drew a line from ("
+			<< dl.start.x
+			<< ","
+			<< dl.start.y
+			<< ","
+			<< dl.start.z
+			<< ") to ("
+			<< dl.end.x
+			<< ","
+			<< dl.end.y
+			<< ","
+			<< dl.end.z
+			<< ")\n";
+	}
 
 	///std::cout << mName << ": (" << dl.start.x << ", " << dl.start.y << ", " << dl.start.z << ") -> ("
 	///	<< dl.end.x << ", " << dl.end.y << ", " << dl.end.z << ")\n";
@@ -173,30 +214,6 @@ void Bone::ComputeAnimationVQS()
 	rotateKey.y = aiQuat.mValue.y;
 	rotateKey.z = aiQuat.mValue.z;
 	glm::vec3 scaleKey(aiScale.mValue.x, aiScale.mValue.y, aiScale.mValue.z);
-
-	//ignore this (TEMP)
-	if (Input->IsDown(Keys::F))
-	{
-		rotateKey.w = 1;
-		rotateKey.x = rotateKey.y = rotateKey.z = 0;
-	}
-	if (Input->IsDown(Keys::R))
-	{
-		if (mName.compare("upperarm.L") == 0)
-		{
-			rotateKey.x = 0.707106781186f;
-			rotateKey.y = 0;
-			rotateKey.z = 0;
-			rotateKey.w = 0.707106781186f;
-			if (Input->IsDown(Keys::T))
-				rotateKey = glm::inverse(rotateKey);
-		}
-		else
-		{
-			rotateKey.w = 1;
-			rotateKey.x = rotateKey.y = rotateKey.z = 0;
-		}
-	}
 
 	mAnimTransform = kdn::vqs(translateKey, rotateKey, scaleKey);
 }

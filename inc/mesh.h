@@ -30,9 +30,7 @@ public:
 	unsigned indexCount = -1;
 	bool visible = false;
 
-	glm::vec3 worldPosition;
-	glm::vec3 worldScale;
-	kdn::quat worldRotation;
+	kdn::vqs worldTransform;
 private:
 	GLuint VBO_name = -1;
 	GLuint VAO_name = -1;

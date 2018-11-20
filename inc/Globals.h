@@ -15,5 +15,6 @@ struct GlobalData
 	float quatExponent = 1.0f;
 	bool animateOnCurve = false;
 	glm::vec3 quatDebugVec = { 0.0f, 0.0f, 0.0f };
+	float animationSpeed = 1.0f;
 };
 extern struct GlobalData Globals;

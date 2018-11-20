@@ -75,27 +75,9 @@ kdn::vqs::vqs(glm::vec3& v_, glm::quat& q_, glm::vec3& s_)
 {
 }
 
-glm::quat test()
-{
-	glm::quat QuatAroundX = glm::angleAxis(Globals.quatDebugVec.x, glm::vec3(1.0, 0.0, 0.0));
-	glm::quat QuatAroundY = glm::angleAxis(Globals.quatDebugVec.y, glm::vec3(0.0, 1.0, 0.0));
-	glm::quat QuatAroundZ = glm::angleAxis(Globals.quatDebugVec.z, glm::vec3(0.0, 0.0, 1.0));
-	glm::quat finalOrientation = QuatAroundX * QuatAroundY * QuatAroundZ;
-	return glm::normalize(finalOrientation);
-}
-
 glm::mat4 kdn::vqs::operator*(const glm::mat4& m)
 {
-	glm::mat4 I(1);
-	glm::mat4 V = glm::translate(I, v);
-	glm::mat4 Q = glm::toMat4(glm::pow(q, Globals.quatExponent));
-	glm::mat4 Qinv = glm::toMat4(glm::inverse(q));
-	glm::mat4 S = glm::scale(I, s);
-
-	if(Input->IsDown(Keys::O))
-		return V * Q * glm::toMat4(test()) * m;
-	else
-		return V * glm::toMat4(test()) * Q * m;
+	return toMat4() * m;
 }
 
 glm::mat4 kdn::vqs::toMat4()

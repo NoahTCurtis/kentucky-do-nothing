@@ -48,6 +48,7 @@ int main(void)
 	glDebugMessageCallback(debug_callback, nullptr);
 	glEnable(GL_DEPTH_TEST);
 
+
 	//Set callbacks
 	glfwSetFramebufferSizeCallback(mainWindow->getGLFWwindow(), framebuffer_size_callback);
 	///glfwSetKeyCallback(mainWindow, input_key_callback);
@@ -68,7 +69,7 @@ int main(void)
 	//make a quick shader program (actually the renderer does this now)
 	//make meshes
 	Meshes.push_back(new Mesh("cube.obj"));
-	(*Meshes.begin())->worldPosition = glm::vec3(0, 1, -1);
+	(*Meshes.begin())->worldTransform.v = glm::vec3(0, 1, -1);
 	ReadAssimpFile(get_full_file_path("alien.fbx", "res\\models"));
 
 	//Main loop!

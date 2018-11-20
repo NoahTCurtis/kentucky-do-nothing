@@ -61,6 +61,16 @@ glm::vec3 Curve::operator()(float t)
 	}
 }
 
+glm::vec3 Curve::tangent(float t)
+{
+	return glm::normalize(this->operator()(t + 0.0001f) - this->operator()(t));
+}
+
+glm::vec3 Curve::move_along(float t, float dist)
+{
+	return glm::vec3();
+}
+
 kdn::Bezier<glm::vec3> Curve::operator[](int i)
 {
 	int ptCount = (int)points.size();

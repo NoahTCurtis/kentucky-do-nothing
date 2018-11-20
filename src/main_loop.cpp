@@ -36,7 +36,7 @@ bool main_loop()
 			if (ImGui::Button("Randomize Mesh positions"))
 			{
 				for (auto& mesh : Meshes)
-					mesh->worldPosition = glm::vec3(randRange(-5, 5), randRange(-5, 5), randRange(-5, 5));
+					mesh->worldTransform.v = glm::vec3(randRange(-5, 5), randRange(-5, 5), randRange(-5, 5));
 			}
 		ImGui::End();
 
@@ -52,7 +52,7 @@ bool main_loop()
 				sprintf_s(label, 256, "%i verts, %i tris", mesh->vertCount, mesh->indexCount / 3);
 				ImGui::Text(label);
 				sprintf_s(label, 256, "Position##%i", i);
-				ImGui::InputFloat3(label, reinterpret_cast<float*>(&mesh->worldPosition), 2);
+				ImGui::InputFloat3(label, reinterpret_cast<float*>(&mesh->worldTransform.v), 2);
 				sprintf_s(label, 256, "Visible##%i", i);
 				ImGui::Checkbox(label, &mesh->visible);
 				i++;
@@ -62,8 +62,9 @@ bool main_loop()
 		ImGui::Begin("Animations");
 			Skeleton& skel = Renderer::get()->skeleTemp;
 			ImGui::TextColored(ImVec4(1, 0, 1, 1), "There are %i animations", skel.mAnimations.size());
-			ImGui::SliderFloat("AnimTime01", &Renderer::get()->skeleTemp.mAnimTime01, 0, 1);
-			ImGui::SliderFloat("QuaternionScale", &Globals.quatExponent, 0, 5);
+			///ImGui::SliderFloat("AnimTime01", &Renderer::get()->skeleTemp.mAnimTime01, 0, 1);
+			///ImGui::SliderFloat("QuaternionScale", &Globals.quatExponent, 0, 5);
+			ImGui::SliderFloat("AnimationSpeed", &Globals.animationSpeed, 0, 50);
 			ImGui::Checkbox("Animate on curve", &Globals.animateOnCurve);
 			i = 0;
 			for (auto& anim : skel.mAnimations)
@@ -75,11 +76,11 @@ bool main_loop()
 					skel.StartAnimation(i);
 				i++;
 			}
-			ImGui::Separator();
-			if (ImGui::Button("Reset"))
-				Globals.quatDebugVec = glm::vec3(0);
-			ImGui::SameLine();
-			ImGui::SliderFloat3("QuatDebugger", &Globals.quatDebugVec[0], -1.0f, 1.0f);
+			///ImGui::Separator();
+			///if (ImGui::Button("Reset"))
+			///	Globals.quatDebugVec = glm::vec3(0);
+			///ImGui::SameLine();
+			///ImGui::SliderFloat3("QuatDebugger", &Globals.quatDebugVec[0], -1.0f, 1.0f);
 		ImGui::End();
 
 		//*
@@ -145,14 +146,7 @@ bool main_loop()
 	//draw meshes
 	glUseProgram(Globals.mesh_shader_program_name);
 	for (auto& mesh : Meshes)
-	{
-		/*auto rot = glm::angleAxis(clock.dt() * 5.0f, glm::vec3(0, 1, 0));
-		rot = rot * mesh->worldRotation;
-		mesh->worldRotation.w = rot.w;
-		mesh->worldRotation.x = rot.x;
-		mesh->worldRotation.y = rot.y;
-		mesh->worldRotation.z = rot.z;//*/
-		
+	{		
 		if (mesh->visible == false) continue;
 		mesh->bind();
 		glm::mat4 model2world = mesh->get_model_to_world_matrix();
@@ -162,15 +156,16 @@ bool main_loop()
 
 	//create grid debug lines
 	DebugLine dbl;
-	int gridSize = 7;
+	int gridSize = 20;
+	glm::vec3 camPos(glm::floor(Camera::get()->position.x), 0, glm::floor(Camera::get()->position.z));
 	for (int i = -gridSize; i <= gridSize; i++)
 	{
-		dbl.start = glm::vec3(i, 0, -gridSize);
-		dbl.end = glm::vec3(i, 0, gridSize);
+		dbl.start = glm::vec3(i, 0, -gridSize) + camPos;
+		dbl.end = glm::vec3(i, 0, gridSize) + camPos;
 		dbl.startcolor = dbl.endcolor = glm::vec3(1, 0.3f, 0.7f);
 		Renderer::get()->add_debug_line(dbl);
-		dbl.start = glm::vec3(-gridSize, 0, i);
-		dbl.end = glm::vec3(gridSize, 0, i);
+		dbl.start = glm::vec3(-gridSize, 0, i) + camPos;
+		dbl.end = glm::vec3(gridSize, 0, i) + camPos;
 		dbl.startcolor = dbl.endcolor = glm::vec3(0.7f, 0.3f, 1);
 		Renderer::get()->add_debug_line(dbl);
 	}
@@ -183,9 +178,19 @@ bool main_loop()
 	else
 		Renderer::get()->skeleTemp.modelToWorld.v = glm::vec3(0);
 
+	//draw the tangent from the mesh
+	if (Globals.animateOnCurve)
+	{
+		DebugLine tanLine;
+		tanLine.start = Renderer::get()->skeleTemp.modelToWorld.v;
+		tanLine.end = Renderer::get()->skeleTemp.modelToWorld.v + Globals.curve.tangent(Renderer::get()->skeleTemp.mAnimTime01) * 5.0f;
+		tanLine.startcolor = tanLine.endcolor = glm::vec3(1, 0.5, 0.5);
+		Renderer::get()->add_debug_line(tanLine);
+	}
+
 	//draw things other than meshes
 	Globals.curve.DebugDraw();
-	Renderer::get()->skeleTemp.DebugDraw();
+	Renderer::get()->skeleTemp.Update(clock.dt() * Globals.animationSpeed);
 	Renderer::get()->render_debug_lines();
 
 

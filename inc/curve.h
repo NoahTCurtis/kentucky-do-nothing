@@ -15,6 +15,9 @@ public:
 
 	Curve();
 	glm::vec3 operator()(float t);
+	glm::vec3 tangent(float t);
+	glm::vec3 move_along(float t, float dist);
+
 	kdn::Bezier<glm::vec3> operator[](int i);
 	void push();
 	void pop();

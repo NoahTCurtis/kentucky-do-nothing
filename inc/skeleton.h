@@ -20,6 +20,7 @@ public:
 	void Initialize(const aiScene* scene);
 	~Skeleton();
 
+	void Update(float dt);
 	void DebugDraw();
 	void StartAnimation(int index);
 
@@ -27,7 +28,7 @@ public:
 	float mAnimTime01 = 0.0f; //[0,1] progress through animation
 	float mAnimTime = 0.0f; //scaled progress through animation
 
-	kdn::vqs modelToWorld;
+	kdn::vqs modelToWorld; //Transform component
 private:
 	Bone* mRootBone;
 	std::map<std::string, Bone*> mBoneMap;
