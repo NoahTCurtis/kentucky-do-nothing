@@ -64,7 +64,8 @@ bool main_loop()
 			ImGui::TextColored(ImVec4(1, 0, 1, 1), "There are %i animations", skel.mAnimations.size());
 			///ImGui::SliderFloat("AnimTime01", &Renderer::get()->skeleTemp.mAnimTime01, 0, 1);
 			///ImGui::SliderFloat("QuaternionScale", &Globals.quatExponent, 0, 5);
-			ImGui::SliderFloat("AnimationSpeed", &Globals.animationSpeed, 0, 50);
+			ImGui::SliderFloat("Animation Speed", &Globals.animationSpeed, 0, 50);
+			ImGui::SliderFloat("Move/Animate Speed Ratio", &Globals.moveAnimateSpeedRatio, 200, 300);
 			ImGui::Checkbox("Animate on curve", &Globals.animateOnCurve);
 			i = 0;
 			for (auto& anim : skel.mAnimations)
@@ -93,14 +94,14 @@ bool main_loop()
 			ImGui::Separator();
 			ImGui::Text("Add/Remove Points");
 			ImGui::SameLine();
-			if(ImGui::Button("+"))
-			{
-				Globals.curve.push();
-			}
-			ImGui::SameLine();
 			if (ImGui::Button("-"))
 			{
 				Globals.curve.pop();
+			}
+			ImGui::SameLine();
+			if(ImGui::Button("+"))
+			{
+				Globals.curve.push();
 			}
 			for (int i = 0; i < Globals.curve.points.size(); i++)
 			{
@@ -125,9 +126,9 @@ bool main_loop()
 	clock.recompute_delta_time();
 	Camera::get()->Update();
 
-	//reanem window
+	//rename window
 	std::stringstream ss;
-	ss << clock.fps() << " (" << (int)(1.0f / clock.dt()) << ")";
+	ss << "CS460 Advanced Demo (" << (int)clock.fps() << ") " << clock.dt();
 	mainWindow->change_title(ss.str());
 
 	//clear screen
@@ -169,28 +170,11 @@ bool main_loop()
 		dbl.startcolor = dbl.endcolor = glm::vec3(0.7f, 0.3f, 1);
 		Renderer::get()->add_debug_line(dbl);
 	}
-
-	//position the animation
-	float scalef = 0.01f;
-	Renderer::get()->skeleTemp.modelToWorld.s = glm::vec3(scalef);
-	if (Globals.animateOnCurve)
-		Renderer::get()->skeleTemp.modelToWorld.v = Globals.curve(Renderer::get()->skeleTemp.mAnimTime01);
-	else
-		Renderer::get()->skeleTemp.modelToWorld.v = glm::vec3(0);
-
-	//draw the tangent from the mesh
-	if (Globals.animateOnCurve)
-	{
-		DebugLine tanLine;
-		tanLine.start = Renderer::get()->skeleTemp.modelToWorld.v;
-		tanLine.end = Renderer::get()->skeleTemp.modelToWorld.v + Globals.curve.tangent(Renderer::get()->skeleTemp.mAnimTime01) * 5.0f;
-		tanLine.startcolor = tanLine.endcolor = glm::vec3(1, 0.5, 0.5);
-		Renderer::get()->add_debug_line(tanLine);
-	}
+	
 
 	//draw things other than meshes
-	Globals.curve.DebugDraw();
-	Renderer::get()->skeleTemp.Update(clock.dt() * Globals.animationSpeed);
+	Globals.curve.debug_draw();
+	Renderer::get()->skeleTemp.Update(clock.dt());
 	Renderer::get()->render_debug_lines();
 
 

@@ -32,7 +32,7 @@ void Mesh::reset_transforms()
 {
 	worldTransform.v = glm::vec3(0, 0, 0);
 	worldTransform.s = glm::vec3(1, 1, 1);
-	worldTransform.q = kdn::quat();
+	worldTransform.q = glm::quat(1,0,0,0);
 }
 
 

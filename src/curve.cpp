@@ -1,34 +1,38 @@
 #include <cassert>
+#include <iostream>
 
 #include "util.h"
 #include "input.h"
 #include "curve.h"
 #include "render.h"
+#include "kdn_math.h"
 
 Curve::Curve()
 {
 	for (int i = 0; i < 4; i++)
 		push();
-	points[0] = glm::vec3( 10, 1,  10);
-	points[1] = glm::vec3(-10, 1,  10);
-	points[2] = glm::vec3(-10, 1, -10);
-	points[3] = glm::vec3( 10, 1, -10);
+	points[0] = glm::vec3( 4, 1,  4);
+	points[1] = glm::vec3(-4, 1,  4);
+	points[2] = glm::vec3(-4, 1, -4);
+	points[3] = glm::vec3( 4, 1, -4);
 }
 
-glm::vec3 Curve::operator()(float t)
+glm::vec3 Curve::operator()(float t, bool normalize)
 {
-	if(Input->IsDown(Keys::F))
-		return glm::vec3(t, fade(t), 0);
-	if(Input->IsDown(Keys::P))
-		return glm::vec3(t, sinEase01(sinEase01(t)), 0);
+	t = kdn::wrap(0.0f, 1.0f, t);
+
+	///if (normalize)
+	///	t = normalize_t(t);
 
 	int ptCount = (int)points.size();
 	auto wrap = [&](int i) { return (i + ptCount) % ptCount; };
 
 	if(ptCount == 0)
-		return glm::vec3();
-	if (ptCount == 1)
+		return glm::vec3(0);
+	else if (ptCount == 1)
 		return points[0];
+	else if (ptCount == 2)
+		return glm::mix(points[0], points[1], (t < 0.5f) ? (t * 2.0f) : ((t - 0.5) * 2.0f));
 	else
 	{
 		float tScaled = t * (float)ptCount;
@@ -71,6 +75,42 @@ glm::vec3 Curve::move_along(float t, float dist)
 	return glm::vec3();
 }
 
+float Curve::normalize_t(float t)
+{
+	if (tableSize == -1)
+		recompute_arc_length_table();
+	
+	//binary search into the table
+	int iterations = 99;
+	int min = 0;
+	int max = tableSize - 1;
+	int avg = -1;
+	while (--iterations)
+	{
+		assert(min != max && min < max);
+
+		avg = (max + min) / 2;
+		if (distanceTable[avg] > t) //go left
+		{
+			max = avg;
+			continue;
+		}
+		else if (distanceTable[avg + 1] < t) //go right
+		{
+			min = avg + 1;
+			continue;
+		}
+		else //stay
+		{
+			min = avg;
+			max = avg + 1;
+			break;
+		}
+	}
+	float T = kdn::unterpolate(distanceTable[min], distanceTable[max], t);
+	return glm::mix(min, max, T) / (float)tableSize;
+}
+
 kdn::Bezier<glm::vec3> Curve::operator[](int i)
 {
 	int ptCount = (int)points.size();
@@ -109,11 +149,12 @@ float Curve::fade(float t)
 
 void Curve::push()
 {
-	float range = 5;
+	float range = 10;
 	float x = randRange(-range, range);
-	float y = randRange(-range, range);
+	float y = 0;// randRange(-range, range);
 	float z = randRange(-range, range);
 	points.push_back(glm::vec3(x, y, z));
+	recompute_arc_length_table();
 }
 
 void Curve::pop()
@@ -122,9 +163,10 @@ void Curve::pop()
 	{
 		points.pop_back();
 	}
+	recompute_arc_length_table();
 }
 
-void Curve::DebugDraw()
+void Curve::debug_draw()
 {
 	//draw the fuzzy curve
 	DebugLine dbl;
@@ -161,4 +203,39 @@ void Curve::DebugDraw()
 			Renderer::get()->add_debug_line(dbl);
 		}
 	}
+}
+
+void Curve::recompute_arc_length_table()
+{
+	if (points.size() == 0) return;
+
+	//rebuild tables
+	tableSize = 3999 * (int)points.size();
+	sampleTable.clear();
+	sampleTable.reserve((int)tableSize);
+	sampleTable.assign(tableSize, glm::vec3(-1));
+	distanceTable.clear();
+	distanceTable.reserve((int)tableSize);
+	distanceTable.assign(tableSize, -1);
+
+	//get position samples
+	for (int i = 0; i < tableSize; i++)
+	{
+		float t = (float)i / (float)(tableSize - 1);
+		sampleTable[i] = operator()(t, false);
+	}
+
+	//get arclength totals
+	distanceTable[0] = 0;
+	for (int i = 1; i < tableSize; i++)
+	{
+		distanceTable[i] = glm::length(sampleTable[i] - sampleTable[i - 1]);
+		distanceTable[i] += distanceTable[i - 1];
+	}
+
+	//reduce arclength totals to [0,1]
+	float divisor = distanceTable[distanceTable.size() - 1];
+	for (int i = 1; i < tableSize; i++)
+		distanceTable[i] /= divisor;
+	distanceTable[distanceTable.size() - 1] = 1.0f;
 }

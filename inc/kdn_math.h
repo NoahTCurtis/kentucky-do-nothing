@@ -10,27 +10,14 @@ namespace kdn
 {
 	glm::mat4 to_mat4(const aiQuaternion& aiQ);
 
-
-	class quat : public glm::highp_quat
+	/*class quat : public glm::highp_quat
 	{
 	public:
 		quat();
 		quat(const aiQuaternion& aiQ);
 		quat(const glm::quat& q);
 		glm::mat4 mat4();
-	};
-
-	class basis
-	{
-	public:
-		glm::vec3 x;
-		glm::vec3 y;
-		glm::vec3 z;
-
-		basis();
-		basis& transform(glm::mat4& mat);
-	private:
-	};
+	};//*/
 
 
 	class vqs
@@ -84,4 +71,30 @@ namespace kdn
 
 		T p0, p1, p2, p3;
 	};
+
+	template <typename T>
+	T unterpolate(const T& a, const T& b, const T& c)
+	{
+		return (c - a) / (b - a);
+	}
+
+	template <typename T>
+	T wrap(const T& min, const T& max, T val)
+	{
+		if (val > max)
+			val -= max - min;
+		else if (val < min)
+			val += max - min;
+		return val;
+	}
+
+	template <typename T>
+	T cap(const T& min, const T& max, const T& val)
+	{
+		if (val > max)
+			val = max;
+		else if (val < min)
+			val = min;
+		return val;
+	}
 } //end of kdn namespace

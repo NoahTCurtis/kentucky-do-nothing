@@ -6,6 +6,8 @@
 #include "skeleton.h"
 #include "render.h"
 #include "input.h"
+#include "kdn_math.h"
+#include "globals.h"
 
 Skeleton::Skeleton()
 {
@@ -33,13 +35,47 @@ Skeleton::~Skeleton()
 
 void Skeleton::Update(float dt)
 {
+	//position the animation
+	float scalef = 0.01f;
+	modelToWorld.s = glm::vec3(scalef);
+	if (Globals.animateOnCurve)
+		modelToWorld.v = Globals.curve(mCurveTime01);
+	else
+		modelToWorld.v = glm::vec3(0);
+
+	//draw debug tangent line
+	//draw the tangent from the mesh
+	if (Globals.animateOnCurve)
+	{
+		DebugLine tanLine;
+		tanLine.start = Renderer::get()->skeleTemp.modelToWorld.v;
+		tanLine.end = Renderer::get()->skeleTemp.modelToWorld.v
+			+ Globals.curve.tangent(Renderer::get()->skeleTemp.mCurveTime01) * 5.0f;
+		tanLine.startcolor = tanLine.endcolor = glm::vec3(1, 0.5, 0.5);
+		Renderer::get()->add_debug_line(tanLine);
+		//rotate the animation
+		modelToWorld.q = glm::normalize(glm::quatLookAt(tanLine.start - tanLine.end, { 0,1,0 }));
+	}
+	else modelToWorld.q = glm::quat(1, 0, 0, 0);
+
+	//compute animation times
 	aiAnimation* anim = mAnimations[mCurrentAnimation];
+	
+	double ticksPerSec = (anim->mTicksPerSecond == 0) ? 1 : anim->mTicksPerSecond;
+	float durationSec = float(anim->mDuration / ticksPerSec);
 
-	mAnimTime += dt;
+	mAnimTime += dt * Globals.animationSpeed;
+	if (mAnimTime > anim->mDuration)
+		mAnimTime -= (float)anim->mDuration;
 
-	if (mAnimTime > (float)anim->mDuration) mAnimTime -= (float)anim->mDuration;
+	mCurveTime01 += dt * Globals.animationSpeed / Globals.moveAnimateSpeedRatio;
+	if (mCurveTime01 > 1.0f)
+		mCurveTime01 -= 1.0f;
 	
 	mAnimTime01 = mAnimTime / (float)anim->mDuration;
+
+	if (Input->IsDown(Keys::B))
+		dt = dt + dt - dt;
 
 	//draw
 	DebugDraw();
@@ -161,6 +197,17 @@ void Bone::DebugDraw(glm::mat4& parentCompound)
 		mChildren[i]->DebugDraw(mCompoundTransform);
 }
 
+glm::vec3 get(const aiVectorKey& key)
+{
+	return glm::vec3(key.mValue.x, key.mValue.y, key.mValue.z);
+}
+glm::quat get(const aiQuatKey& key)
+{
+	return glm::quat(key.mValue.w, key.mValue.x, key.mValue.y, key.mValue.z);
+}
+
+
+
 void Bone::ComputeAnimationVQS()
 {
 	if (mAiNodeAnim == nullptr)
@@ -202,18 +249,19 @@ void Bone::ComputeAnimationVQS()
 	}
 
 	//Interpolate between A-B keys
-	aiVectorKey aiVec = aiVecA;
-	aiQuatKey aiQuat = aiQuatA;
-	aiVectorKey aiScale = aiScaleA;
-
 	//convert to glm/kdn
-	glm::vec3 translateKey(aiVec.mValue.x, aiVec.mValue.y, aiVec.mValue.z);
-	glm::quat rotateKey; // (aiQuat.mValue);
-	rotateKey.w = aiQuat.mValue.w;
-	rotateKey.x = aiQuat.mValue.x;
-	rotateKey.y = aiQuat.mValue.y;
-	rotateKey.z = aiQuat.mValue.z;
-	glm::vec3 scaleKey(aiScale.mValue.x, aiScale.mValue.y, aiScale.mValue.z);
+	double fader;
+	fader = kdn::unterpolate(aiVecA.mTime, aiVecB.mTime, (double)mSkeleton->mAnimTime);
+	if (Input->IsDown(Keys::One)) fader = 0;
+	glm::vec3 translateKey = glm::mix(get(aiVecA), get(aiVecB), fader);
+
+	fader = kdn::unterpolate(aiQuatA.mTime, aiQuatB.mTime, (double)mSkeleton->mAnimTime);
+	if(Input->IsDown(Keys::Two)) fader = 0;
+	glm::quat rotateKey = glm::slerp(get(aiQuatA), get(aiQuatB), (float)fader);
+
+	fader = kdn::unterpolate(aiScaleA.mTime, aiScaleB.mTime, (double)mSkeleton->mAnimTime);
+	if (Input->IsDown(Keys::Three)) fader = 0;
+	glm::vec3 scaleKey = glm::mix(get(aiScaleA), get(aiScaleB), fader);
 
 	mAnimTransform = kdn::vqs(translateKey, rotateKey, scaleKey);
 }

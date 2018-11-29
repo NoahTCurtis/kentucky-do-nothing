@@ -27,6 +27,7 @@ public:
 	std::vector<aiAnimation*> mAnimations;
 	float mAnimTime01 = 0.0f; //[0,1] progress through animation
 	float mAnimTime = 0.0f; //scaled progress through animation
+	float mCurveTime01 = 0.0f;
 
 	kdn::vqs modelToWorld; //Transform component
 private:
