@@ -1,5 +1,6 @@
 #include <cassert>
 #include <iostream>
+#include <algorithm>
 
 #include "util.h"
 #include "input.h"
@@ -21,8 +22,8 @@ glm::vec3 Curve::operator()(float t, bool normalize)
 {
 	t = kdn::wrap(0.0f, 1.0f, t);
 
-	///if (normalize)
-	///	t = normalize_t(t);
+	if (normalize)
+		t = normalize_t(t);
 
 	int ptCount = (int)points.size();
 	auto wrap = [&](int i) { return (i + ptCount) % ptCount; };
@@ -70,45 +71,26 @@ glm::vec3 Curve::tangent(float t)
 	return glm::normalize(this->operator()(t + 0.0001f) - this->operator()(t));
 }
 
-glm::vec3 Curve::move_along(float t, float dist)
-{
-	return glm::vec3();
-}
-
 float Curve::normalize_t(float t)
 {
+	if (t == 1.0f)
+		return 1.0f;
+
 	if (tableSize == -1)
 		recompute_arc_length_table();
 	
 	//binary search into the table
-	int iterations = 99;
-	int min = 0;
-	int max = tableSize - 1;
-	int avg = -1;
-	while (--iterations)
-	{
-		assert(min != max && min < max);
+	
+	auto bound = std::lower_bound(distanceTable.begin(), distanceTable.end(), t);
+	int index = (int)(bound - distanceTable.begin());
 
-		avg = (max + min) / 2;
-		if (distanceTable[avg] > t) //go left
-		{
-			max = avg;
-			continue;
-		}
-		else if (distanceTable[avg + 1] < t) //go right
-		{
-			min = avg + 1;
-			continue;
-		}
-		else //stay
-		{
-			min = avg;
-			max = avg + 1;
-			break;
-		}
-	}
-	float T = kdn::unterpolate(distanceTable[min], distanceTable[max], t);
-	return glm::mix(min, max, T) / (float)tableSize;
+	if (index == distanceTable.size() - 1)
+		return 1.0f;
+
+	float T = kdn::unterpolate(distanceTable[index], distanceTable[index + 1], t);
+	float A = float(index) / float(tableSize);
+	float B = float(index + 1) / float(tableSize);
+	return glm::mix(A, B, T);
 }
 
 kdn::Bezier<glm::vec3> Curve::operator[](int i)
@@ -210,7 +192,7 @@ void Curve::recompute_arc_length_table()
 	if (points.size() == 0) return;
 
 	//rebuild tables
-	tableSize = 3999 * (int)points.size();
+	tableSize = 999 * (int)points.size();
 	sampleTable.clear();
 	sampleTable.reserve((int)tableSize);
 	sampleTable.assign(tableSize, glm::vec3(-1));
@@ -234,8 +216,11 @@ void Curve::recompute_arc_length_table()
 	}
 
 	//reduce arclength totals to [0,1]
-	float divisor = distanceTable[distanceTable.size() - 1];
+	curveLength = distanceTable[distanceTable.size() - 1];
 	for (int i = 1; i < tableSize; i++)
-		distanceTable[i] /= divisor;
+		distanceTable[i] /= curveLength;
 	distanceTable[distanceTable.size() - 1] = 1.0f;
+
+	if (curveLength == 0)
+		curveLength = 1.0f;
 }

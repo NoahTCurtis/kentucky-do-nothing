@@ -50,6 +50,7 @@ Mesh* convert_aimesh_to_kdnmesh(aiMesh* aimesh)
 	//Make a mesh for the graphics system
 	Mesh* kdnMesh = new Mesh();
 	kdnMesh->name = std::string(aimesh->mName.C_Str());
+	kdnMesh->aimesh = aimesh;
 
 	std::vector<Vertex> kdnVertices;
 	kdnVertices.reserve(aimesh->mNumVertices);
@@ -178,7 +179,7 @@ void ReadAssimpFile(const std::string& path)
 	for (int i = 0; i < (int)scene->mNumMeshes; i++)
 	{
 		showMesh(scene->mMeshes[i]);
-		Meshes.push_back(convert_aimesh_to_kdnmesh(scene->mMeshes[i]));
+		Renderer::get()->add_mesh(convert_aimesh_to_kdnmesh(scene->mMeshes[i]));
 	}
 
 	Renderer::get()->skeleTemp.Initialize(scene);

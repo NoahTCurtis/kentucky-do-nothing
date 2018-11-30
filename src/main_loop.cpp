@@ -35,15 +35,15 @@ bool main_loop()
 			ImGui::ColorEdit3("clear color", (float*)&Globals.clear_color);
 			if (ImGui::Button("Randomize Mesh positions"))
 			{
-				for (auto& mesh : Meshes)
+				for (auto& mesh : Renderer::get()->Meshes)
 					mesh->worldTransform.v = glm::vec3(randRange(-5, 5), randRange(-5, 5), randRange(-5, 5));
 			}
 		ImGui::End();
 
 		ImGui::Begin("Meshes");
-			ImGui::TextColored(ImVec4(1,0,1,1), "There are %i meshes", Meshes.size());
+			ImGui::TextColored(ImVec4(1,0,1,1), "There are %i meshes", Renderer::get()->Meshes.size());
 			int i = 1;
-			for(auto& mesh : Meshes)
+			for(auto& mesh : Renderer::get()->Meshes)
 			{
 				char label[256];
 				ImGui::Separator();
@@ -62,10 +62,9 @@ bool main_loop()
 		ImGui::Begin("Animations");
 			Skeleton& skel = Renderer::get()->skeleTemp;
 			ImGui::TextColored(ImVec4(1, 0, 1, 1), "There are %i animations", skel.mAnimations.size());
-			///ImGui::SliderFloat("AnimTime01", &Renderer::get()->skeleTemp.mAnimTime01, 0, 1);
-			///ImGui::SliderFloat("QuaternionScale", &Globals.quatExponent, 0, 5);
 			ImGui::SliderFloat("Animation Speed", &Globals.animationSpeed, 0, 50);
-			ImGui::SliderFloat("Move/Animate Speed Ratio", &Globals.moveAnimateSpeedRatio, 200, 300);
+			ImGui::SliderFloat("Move/Animate Speed Ratio", &Globals.moveAnimateSpeedRatio, 1, 300);
+			ImGui::Text("Speed = %f", Globals.computedMoveSpeed);
 			ImGui::Checkbox("Animate on curve", &Globals.animateOnCurve);
 			i = 0;
 			for (auto& anim : skel.mAnimations)
@@ -77,11 +76,6 @@ bool main_loop()
 					skel.StartAnimation(i);
 				i++;
 			}
-			///ImGui::Separator();
-			///if (ImGui::Button("Reset"))
-			///	Globals.quatDebugVec = glm::vec3(0);
-			///ImGui::SameLine();
-			///ImGui::SliderFloat3("QuatDebugger", &Globals.quatDebugVec[0], -1.0f, 1.0f);
 		ImGui::End();
 
 		//*
@@ -91,6 +85,8 @@ bool main_loop()
 			{
 				ImGui::Checkbox("Apply Smoothing", &Globals.curve.useSmoothness);
 			}
+			if (ImGui::Button("Recompute Arc Length Table"))
+				Globals.curve.recompute_arc_length_table();
 			ImGui::Separator();
 			ImGui::Text("Add/Remove Points");
 			ImGui::SameLine();
@@ -113,14 +109,6 @@ bool main_loop()
 	ImGui::Render();
 
 
-	//Reload Shaders
-	if (Input->IsTriggered(Keys::F9))
-	{
-		glUseProgram(0);
-		glDeleteProgram(Globals.mesh_shader_program_name);
-		Globals.mesh_shader_program_name = create_shader_program("mesh_vert.shader", "mesh_frag.shader");
-	}
-
 	//update systems
 	Input->Update(0);
 	clock.recompute_delta_time();
@@ -130,30 +118,6 @@ bool main_loop()
 	std::stringstream ss;
 	ss << "CS460 Advanced Demo (" << (int)clock.fps() << ") " << clock.dt();
 	mainWindow->change_title(ss.str());
-
-	//clear screen
-	glClearColor(Globals.clear_color.x, Globals.clear_color.y, Globals.clear_color.z, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	//push world2cam to vert shader
-	glUseProgram(Globals.mesh_shader_program_name);
-	glm::mat4 world2camMat = Camera::get()->get_world_to_camera_matrix();
-	glUniformMatrix4fv(glGetUniformLocation(Globals.mesh_shader_program_name, "world2cam"), 1, GL_FALSE, &world2camMat[0][0]);
-
-	//push cam2persp to vert shader
-	glm::mat4 perspectiveMat = mainWindow->compute_perspective_matrix(0.1f, 1000.0f);
-	glUniformMatrix4fv(glGetUniformLocation(Globals.mesh_shader_program_name, "perspective"), 1, GL_FALSE, &perspectiveMat[0][0]);
-
-	//draw meshes
-	glUseProgram(Globals.mesh_shader_program_name);
-	for (auto& mesh : Meshes)
-	{		
-		if (mesh->visible == false) continue;
-		mesh->bind();
-		glm::mat4 model2world = mesh->get_model_to_world_matrix();
-		glUniformMatrix4fv(glGetUniformLocation(Globals.mesh_shader_program_name, "model2world"), 1, GL_FALSE, &model2world[0][0]);
-		glDrawElements(GL_TRIANGLES, mesh->indexCount, GL_UNSIGNED_INT, 0);
-	}
 
 	//create grid debug lines
 	DebugLine dbl;
@@ -171,16 +135,12 @@ bool main_loop()
 		Renderer::get()->add_debug_line(dbl);
 	}
 	
-
 	//draw things other than meshes
 	Globals.curve.debug_draw();
 	Renderer::get()->skeleTemp.Update(clock.dt());
-	Renderer::get()->render_debug_lines();
-
 
 	//finish render
-	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-	glfwSwapBuffers(mainWindow->getGLFWwindow());
-	glFlush();
+	Renderer::get()->Update();
+
 	return Input->IsTriggered(Keys::Escape) || glfwWindowShouldClose(mainWindow->getGLFWwindow());
 }

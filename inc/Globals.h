@@ -15,5 +15,6 @@ struct GlobalData
 	glm::vec3 quatDebugVec = { 0.0f, 0.0f, 0.0f };
 	float animationSpeed = 1.0f;
 	float moveAnimateSpeedRatio = 1.0f;
+	float computedMoveSpeed = 0.0f;
 };
 extern struct GlobalData Globals;

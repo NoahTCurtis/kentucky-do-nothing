@@ -1,5 +1,6 @@
 #pragma once
 
+#include <list>
 #include <vector>
 
 ///#include "glad/glad.h"
@@ -8,6 +9,7 @@
 #include "assimp/Importer.hpp"
 
 #include "skeleton.h"
+#include "mesh.h"
 
 typedef struct
 {
@@ -23,6 +25,9 @@ class Renderer
 public:
 	Renderer();
 	~Renderer();
+	void Update();
+	void add_mesh(Mesh* mesh);
+	void render_meshes();
 	void render_debug_lines();
 	void add_debug_line(DebugLine dl);
 	static Renderer* get();
@@ -31,6 +36,8 @@ public:
 	Skeleton skeleTemp;
 	const aiScene* scene;
 	Assimp::Importer importer;
+
+	std::list<Mesh*> Meshes;
 private:
 	static Renderer* instance_;
 	std::vector<DebugLine> DebugLines;

@@ -4,8 +4,9 @@
 #include <list>
 #include <vector>
 
-#include "glad/glad.h"
+///#include "glad/glad.h"
 #include "glm/glm.hpp"
+#include "assimp/scene.h"
 
 #include "vertex.h"
 #include "kdn_math.h"
@@ -26,16 +27,15 @@ public:
 	void bind();
 
 	std::string name;
+	aiMesh* aimesh = nullptr; //assimp mesh array
 	unsigned vertCount = -1;
 	unsigned indexCount = -1;
 	bool visible = false;
 
 	kdn::vqs worldTransform;
 private:
-	GLuint VBO_name = -1;
-	GLuint VAO_name = -1;
-	GLuint EBO_name = -1;
+	unsigned VBO_name = -1;
+	unsigned VAO_name = -1;
+	unsigned EBO_name = -1;
 
 };
-
-extern std::list<Mesh*> Meshes;

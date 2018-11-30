@@ -8,15 +8,16 @@
 #include <iostream>
 #include <ctime>
 
-#include "main_loop.h"
-#include "input.h"
-#include "window.h"
-#include "shaders.h"
-#include "Globals.h"
 #include "callbacks.h"
+#include "Globals.h"
+#include "input.h"
+#include "main_loop.h"
 #include "mesh.h"
+#include "render.h"
 #include "scene_loader.h"
+#include "shaders.h"
 #include "util.h"
+#include "window.h"
 
 
 //Globals here
@@ -68,9 +69,11 @@ int main(void)
 
 	//make a quick shader program (actually the renderer does this now)
 	//make meshes
-	Meshes.push_back(new Mesh("cube.obj"));
-	(*Meshes.begin())->worldTransform.v = glm::vec3(0, 1, -1);
-	ReadAssimpFile(get_full_file_path("alien.fbx", "res\\models"));
+	Mesh* newMesh = new Mesh("cube.obj");
+	Renderer::get()->add_mesh(newMesh);
+	newMesh->worldTransform.v = glm::vec3(0, 1, -1);
+
+	ReadAssimpFile(get_full_file_path("samba.fbx", "res\\models"));
 
 	//Main loop!
 	while ( main_loop() == false );

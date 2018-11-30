@@ -8,6 +8,7 @@
 #include "input.h"
 #include "kdn_math.h"
 #include "globals.h"
+#include "mesh.h"
 
 Skeleton::Skeleton()
 {
@@ -36,14 +37,16 @@ Skeleton::~Skeleton()
 void Skeleton::Update(float dt)
 {
 	//position the animation
+	glm::vec3 oldPos = modelToWorld.v;
 	float scalef = 0.01f;
 	modelToWorld.s = glm::vec3(scalef);
 	if (Globals.animateOnCurve)
 		modelToWorld.v = Globals.curve(mCurveTime01);
 	else
 		modelToWorld.v = glm::vec3(0);
+	Globals.computedMoveSpeed = glm::mix(Globals.computedMoveSpeed, glm::length(oldPos - modelToWorld.v), 0.5); //movespeed checker
 
-	//draw debug tangent line
+	//rotate the mesh and
 	//draw the tangent from the mesh
 	if (Globals.animateOnCurve)
 	{
@@ -68,7 +71,7 @@ void Skeleton::Update(float dt)
 	if (mAnimTime > anim->mDuration)
 		mAnimTime -= (float)anim->mDuration;
 
-	mCurveTime01 += dt * Globals.animationSpeed / Globals.moveAnimateSpeedRatio;
+	mCurveTime01 += (dt * Globals.animationSpeed) / (Globals.curve.curveLength * Globals.moveAnimateSpeedRatio);
 	if (mCurveTime01 > 1.0f)
 		mCurveTime01 -= 1.0f;
 	
@@ -79,6 +82,14 @@ void Skeleton::Update(float dt)
 
 	//draw
 	DebugDraw();
+
+	////////////////////////////
+
+	//position the mesh
+	for (auto& mesh : Renderer::get()->Meshes)
+	{
+		mesh->worldTransform = modelToWorld;
+	}
 }
 
 void Skeleton::DebugDraw()
@@ -262,6 +273,9 @@ void Bone::ComputeAnimationVQS()
 	fader = kdn::unterpolate(aiScaleA.mTime, aiScaleB.mTime, (double)mSkeleton->mAnimTime);
 	if (Input->IsDown(Keys::Three)) fader = 0;
 	glm::vec3 scaleKey = glm::mix(get(aiScaleA), get(aiScaleB), fader);
+
+	if (mName.compare("mixamorig:Hips") == 0)
+		translateKey.z = 0;
 
 	mAnimTransform = kdn::vqs(translateKey, rotateKey, scaleKey);
 }

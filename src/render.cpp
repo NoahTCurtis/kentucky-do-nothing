@@ -4,7 +4,12 @@
 #include "GLFW/glfw3.h"
 #include "glm/glm.hpp"
 
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_glfw.h"
+#include "imgui/imgui_impl_opengl3.h"
+
 #include "render.h"
+#include "input.h"
 #include "globals.h"
 #include "window.h"
 #include "camera.h"
@@ -50,6 +55,60 @@ Renderer::~Renderer()
 	glUseProgram(0);
 	//fix up singleton things
 	instance_ = nullptr;
+}
+
+void Renderer::Update()
+{
+	//Reload Shaders
+	if (Input->IsTriggered(Keys::F9))
+	{
+		glUseProgram(0);
+		glDeleteProgram(Globals.mesh_shader_program_name);
+		Globals.mesh_shader_program_name = create_shader_program("mesh_vert.shader", "mesh_frag.shader");
+	}
+
+	//clear screen
+	glClearColor(Globals.clear_color.x, Globals.clear_color.y, Globals.clear_color.z, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	//push world2cam to vert shader
+	glUseProgram(Globals.mesh_shader_program_name);
+	glm::mat4 world2camMat = Camera::get()->get_world_to_camera_matrix();
+	glUniformMatrix4fv(glGetUniformLocation(Globals.mesh_shader_program_name, "world2cam"), 1, GL_FALSE, &world2camMat[0][0]);
+
+	//push cam2persp to vert shader
+	glm::mat4 perspectiveMat = mainWindow->compute_perspective_matrix(0.1f, 1000.0f);
+	glUniformMatrix4fv(glGetUniformLocation(Globals.mesh_shader_program_name, "perspective"), 1, GL_FALSE, &perspectiveMat[0][0]);
+
+	//Perform Responsibilities
+	Renderer::get()->render_debug_lines();
+	Renderer::get()->render_meshes();
+
+	//Draw ImGui on top
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+	//finish and flush commands
+	glfwSwapBuffers(mainWindow->getGLFWwindow());
+	///glFlush();
+}
+
+void Renderer::add_mesh(Mesh * mesh)
+{
+	Meshes.push_back(mesh);
+}
+
+void Renderer::render_meshes()
+{
+	//draw meshes
+	glUseProgram(Globals.mesh_shader_program_name);
+	for (auto& mesh : Meshes)
+	{
+		if (mesh->visible == false) continue;
+		mesh->bind();
+		glm::mat4 model2world = mesh->get_model_to_world_matrix();
+		glUniformMatrix4fv(glGetUniformLocation(Globals.mesh_shader_program_name, "model2world"), 1, GL_FALSE, &model2world[0][0]);
+		glDrawElements(GL_TRIANGLES, mesh->indexCount, GL_UNSIGNED_INT, 0);
+	}
 }
 
 void Renderer::render_debug_lines()
