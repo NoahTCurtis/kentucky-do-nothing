@@ -78,6 +78,7 @@ void Renderer::Update()
 
 	//push cam2persp to vert shader
 	glm::mat4 perspectiveMat = mainWindow->compute_perspective_matrix(0.1f, 1000.0f);
+	perspectiveMat = glm::mat4(1);
 	glUniformMatrix4fv(glGetUniformLocation(Globals.mesh_shader_program_name, "perspective"), 1, GL_FALSE, &perspectiveMat[0][0]);
 
 	//Perform Responsibilities

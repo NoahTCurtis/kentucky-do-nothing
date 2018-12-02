@@ -10,9 +10,9 @@ Camera* Camera::instance_ = nullptr;
 
 Camera::Camera()
 {
-	position = glm::vec3(0, 1, 1);
-	look = glm::vec3(0, 1, -1);
-	up = glm::vec3(0,1, 0);
+	position = glm::vec3(0, 0.5, 1);
+	look = glm::vec3(0, 0, -1);
+	up = glm::vec3(0, 1, 0);
 }
 
 Camera::~Camera()
@@ -45,13 +45,6 @@ void Camera::Update()
 	glm::vec3 localUp = glm::normalize(glm::cross(localRight, look));
 	glm::vec3 localLook = glm::normalize(look);
 
-	//*
-	position += movement * clock.dt();
-	/*/
-	position += movement.x * localRight * clock.dt();
-	position += movement.y * localLook * clock.dt();
-	position += movement.z * localUp * clock.dt();
-	//*/
-
-	look = -position + up;
+	position += movement * glm::vec3(0.5,0.5,0) * clock.dt();
+	position.z *= 1.0f +  movement.z * 0.2f * clock.dt();
 }

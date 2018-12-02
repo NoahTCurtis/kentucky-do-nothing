@@ -2,6 +2,8 @@
 #include "GLFW/glfw3.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
+#define GLM_ENABLE_EXPERIMENTAL
+#include "glm/gtx/rotate_vector.hpp"
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
@@ -23,7 +25,27 @@
 #include "util.h"
 #include "kdn_math.h"
 #include "scene_loader.h"
+#include "neural.h"
 
+void Instantiate_NN(int n)
+{
+	if (net) {
+		delete net;
+		net = nullptr;
+	}
+	net = new nn::NeuralNet(n);
+	net->SetGamma(nn::Sigmoid);
+	net->SetTarget(nn::T2);
+	net->ScrambleWeights();
+	net->PrecomputeAgainstTarget();
+	net->Error();
+}
+
+
+void main_init()
+{
+	Instantiate_NN(20);
+}
 
 bool main_loop()
 {
@@ -33,81 +55,60 @@ bool main_loop()
 	ImGui::NewFrame();
 		ImGui::Begin("Editor");
 			ImGui::ColorEdit3("clear color", (float*)&Globals.clear_color);
-			if (ImGui::Button("Randomize Mesh positions"))
-			{
-				for (auto& mesh : Renderer::get()->Meshes)
-					mesh->worldTransform.v = glm::vec3(randRange(-5, 5), randRange(-5, 5), randRange(-5, 5));
-			}
-		ImGui::End();
-
-		ImGui::Begin("Meshes");
-			ImGui::TextColored(ImVec4(1,0,1,1), "There are %i meshes", Renderer::get()->Meshes.size());
-			int i = 1;
-			for(auto& mesh : Renderer::get()->Meshes)
-			{
-				char label[256];
-				ImGui::Separator();
-				sprintf_s(label, 256, "%s##%i", mesh->name.c_str(), i);
-				ImGui::Text(label);
-				sprintf_s(label, 256, "%i verts, %i tris", mesh->vertCount, mesh->indexCount / 3);
-				ImGui::Text(label);
-				sprintf_s(label, 256, "Position##%i", i);
-				ImGui::InputFloat3(label, reinterpret_cast<float*>(&mesh->worldTransform.v), 2);
-				sprintf_s(label, 256, "Visible##%i", i);
-				ImGui::Checkbox(label, &mesh->visible);
-				i++;
-			}
-		ImGui::End();
-
-		ImGui::Begin("Animations");
-			Skeleton& skel = Renderer::get()->skeleTemp;
-			ImGui::TextColored(ImVec4(1, 0, 1, 1), "There are %i animations", skel.mAnimations.size());
-			ImGui::SliderFloat("Animation Speed", &Globals.animationSpeed, 0, 50);
-			ImGui::SliderFloat("Move/Animate Speed Ratio", &Globals.moveAnimateSpeedRatio, 1, 300);
-			ImGui::Text("Speed = %f", Globals.computedMoveSpeed);
-			ImGui::Checkbox("Animate on curve", &Globals.animateOnCurve);
-			i = 0;
-			for (auto& anim : skel.mAnimations)
-			{
-				char label[256];
-				///ImGui::Separator();
-				sprintf_s(label, 256, "%s", anim->mName.C_Str());
-				if (ImGui::Button(label))
-					skel.StartAnimation(i);
-				i++;
-			}
-		ImGui::End();
-
-		//*
-		ImGui::Begin("Curve Editor");
-			ImGui::InputInt("Line Segments (ignore)", &Globals.curve.lineSegments);
-			if(!ImGui::Checkbox("Show individual curves", &Globals.curve.showOriginalCurves))
-			{
-				ImGui::Checkbox("Apply Smoothing", &Globals.curve.useSmoothness);
-			}
-			if (ImGui::Button("Recompute Arc Length Table"))
-				Globals.curve.recompute_arc_length_table();
 			ImGui::Separator();
-			ImGui::Text("Add/Remove Points");
-			ImGui::SameLine();
-			if (ImGui::Button("-"))
-			{
-				Globals.curve.pop();
-			}
-			ImGui::SameLine();
-			if(ImGui::Button("+"))
-			{
-				Globals.curve.push();
-			}
-			for (int i = 0; i < Globals.curve.points.size(); i++)
-			{
-				char label[256];
-				sprintf_s(label, 256, "Point##%i", i);
-				ImGui::InputFloat3(label, reinterpret_cast<float*>(&Globals.curve.points[i]), 2);
-			}
-		ImGui::End();//*/
-	ImGui::Render();
 
+			float tempFloat = (float)net->learningRate;
+			ImGui::InputFloat("Learning Rate", &tempFloat, 0, 0, "%.9f");
+			net->learningRate = (prec)tempFloat;
+
+			if (ImGui::Button("Scramble Weights")) {
+				net->ScrambleWeights();
+				net->PrecomputeAgainstTarget();
+				net->Error();
+			}
+			static bool autoUpdate = true;
+			ImGui::Checkbox("Auto", &autoUpdate);
+			ImGui::SameLine();
+			if (ImGui::Button("Update") || autoUpdate)
+				net->Update();
+			ImGui::Text("Error: %f", net->computedError);
+		ImGui::End();
+
+		ImGui::Begin("Weights");
+			int tempWidth = net->GetWidth();
+			ImGui::InputInt("Neurons", &tempWidth);
+			if (tempWidth != net->GetWidth() && tempWidth >= 0)
+				Instantiate_NN(tempWidth);
+
+			ImGui::Text("W0: %f", (float)net->GetWeight(0));
+			for (int i = 0; i < net->GetWidth(); i++)
+			{
+				ImGui::Text("W%i: %f", i + 1, (float)net->GetWeight(i));
+			}
+		ImGui::End();
+
+		ImGui::Begin("Target Function");
+			#define SwitchTarget(name, func) if(ImGui::Button(#name)) net->SetTarget(nn::func);
+			SwitchTarget(X^2, T2);
+			SwitchTarget(L, Oot);
+			SwitchTarget(Sine, DenseSinGamma);
+			SwitchTarget(2 Steps, Steps2);
+			SwitchTarget(4 Steps, Steps4);
+			SwitchTarget(Snake, Snake);
+		ImGui::End();
+
+		ImGui::Begin("Activation Function");
+			#define SwitchGamma(name, func) if(ImGui::Button(#name)) net->SetGamma(nn::func);
+			SwitchGamma(Sigmoid, Sigmoid);
+			tempFloat = (float)nn::Alpha;
+			ImGui::SliderFloat("Alpha", &tempFloat, 0.0f, 15.0f);
+			nn::Alpha = (prec)tempFloat;
+			ImGui::Separator();
+			SwitchGamma(Sine, SinGamma);
+			SwitchGamma(Rectified, ReLU);
+			SwitchGamma(Y = X, Direct);
+		ImGui::End();
+	ImGui::Render();
 
 	//update systems
 	Input->Update(0);
@@ -116,28 +117,52 @@ bool main_loop()
 
 	//rename window
 	std::stringstream ss;
-	ss << "CS460 Advanced Demo (" << (int)clock.fps() << ") " << clock.dt();
+	ss << "MAT362 Neural Demo (" << (int)clock.fps() << "fps)";
 	mainWindow->change_title(ss.str());
 
 	//create grid debug lines
 	DebugLine dbl;
 	int gridSize = 20;
-	glm::vec3 camPos(glm::floor(Camera::get()->position.x), 0, glm::floor(Camera::get()->position.z));
+	glm::vec3 camPos(glm::floor(Camera::get()->position.x), glm::floor(Camera::get()->position.z), 0);
 	for (int i = -gridSize; i <= gridSize; i++)
 	{
-		dbl.start = glm::vec3(i, 0, -gridSize) + camPos;
-		dbl.end = glm::vec3(i, 0, gridSize) + camPos;
+		dbl.start = glm::vec3(i, -gridSize, 0) + camPos;
+		dbl.end = glm::vec3(i, gridSize, 0) + camPos;
 		dbl.startcolor = dbl.endcolor = glm::vec3(1, 0.3f, 0.7f);
 		Renderer::get()->add_debug_line(dbl);
-		dbl.start = glm::vec3(-gridSize, 0, i) + camPos;
-		dbl.end = glm::vec3(gridSize, 0, i) + camPos;
+
+		dbl.start = glm::vec3(-gridSize, i, 0) + camPos;
+		dbl.end = glm::vec3(gridSize, i, 0) + camPos;
 		dbl.startcolor = dbl.endcolor = glm::vec3(0.7f, 0.3f, 1);
 		Renderer::get()->add_debug_line(dbl);
 	}
-	
-	//draw things other than meshes
-	Globals.curve.debug_draw();
-	Renderer::get()->skeleTemp.Update(clock.dt());
+
+	//draw origin
+	for (int i = 0; i < 50; i++)
+	{
+		dbl.start = glm::vec3(0, 0, 0);
+		dbl.end = glm::rotate(glm::vec3(0.025, 0, 0), 2.0f * (float)pi_const * (float)i / 50, glm::vec3(0,0,1));
+		dbl.startcolor = dbl.endcolor = glm::vec3(0, 0, 1);
+		Renderer::get()->add_debug_line(dbl);
+	}
+
+	//Draw the net and target lines
+	int segments = 200;
+	for (int i = 0; i < segments - 1; i++)
+	{
+		float t = (float)i / (float)segments;
+		float t1 = (float)(i + 1) / (float)segments;
+
+		dbl.start = glm::vec3(t, net->Compute(t), 0.002);
+		dbl.end = glm::vec3(t1, net->Compute(t1), 0.002);
+		dbl.startcolor = dbl.endcolor = glm::vec3(1, 0, 0);
+		Renderer::get()->add_debug_line(dbl);
+
+		dbl.start = glm::vec3(t, net->GetTarget()(t), 0.001);
+		dbl.end = glm::vec3(t1, net->GetTarget()(t1), 0.001);
+		dbl.startcolor = dbl.endcolor = glm::vec3(0, 1, 0);
+		Renderer::get()->add_debug_line(dbl);
+	}
 
 	//finish render
 	Renderer::get()->Update();

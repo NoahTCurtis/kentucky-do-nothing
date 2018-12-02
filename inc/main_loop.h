@@ -1,4 +1,4 @@
 #pragma once
 
+void main_init();
 bool main_loop();
-void create_default_mesh();

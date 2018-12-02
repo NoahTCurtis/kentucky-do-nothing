@@ -8,7 +8,7 @@ struct GlobalData
 {
 	unsigned mesh_shader_program_name;
 	unsigned line_shader_program_name;
-	glm::vec3 clear_color = { 0.2f, 0.3f, 0.3f };
+	glm::vec3 clear_color = { 0.0f, 0.0f, 0.0f };
 	Curve curve;
 	float quatExponent = 1.0f;
 	bool animateOnCurve = false;

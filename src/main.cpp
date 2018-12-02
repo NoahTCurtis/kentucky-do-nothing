@@ -69,13 +69,14 @@ int main(void)
 
 	//make a quick shader program (actually the renderer does this now)
 	//make meshes
-	Mesh* newMesh = new Mesh("cube.obj");
-	Renderer::get()->add_mesh(newMesh);
-	newMesh->worldTransform.v = glm::vec3(0, 1, -1);
-
-	ReadAssimpFile(get_full_file_path("samba.fbx", "res\\models"));
+	///Mesh* newMesh = new Mesh("cube.obj");
+	///Renderer::get()->add_mesh(newMesh);
+	///newMesh->worldTransform.v = glm::vec3(0, 1, -1);
+	///
+	///ReadAssimpFile(get_full_file_path("samba.fbx", "res\\models"));
 
 	//Main loop!
+	main_init();
 	while ( main_loop() == false );
 
 	// Cleanup imgui
