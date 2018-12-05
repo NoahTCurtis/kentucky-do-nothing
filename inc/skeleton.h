@@ -11,10 +11,23 @@
 class Skeleton;
 class Bone;
 
+#define IKREQUEST_T_BUFFERSIZE 64
+typedef struct
+{
+	glm::vec3 targetWorldPoint;
+	int depth = 3;
+	char endEffectorName[IKREQUEST_T_BUFFERSIZE] = { 0 };
+} IKrequest_t;
+
+class IK
+{
+
+};
 
 class Skeleton
 {
 	friend class Bone;
+	friend class IK;
 public:
 	Skeleton();
 	void Initialize(const aiScene* scene);
@@ -29,6 +42,12 @@ public:
 	float mAnimTime = 0.0f; //scaled progress through animation
 	float mCurveTime01 = 0.0f;
 
+	//Inverse Kinematics
+	bool IK(IKrequest_t& request);
+	void ResetAllIKData();
+	float mIKfader01 = 1.0f;
+	std::string mLastIKBoneName; //for convenience
+
 	kdn::vqs modelToWorld; //Transform component
 private:
 	Bone* mRootBone;
@@ -42,11 +61,21 @@ private:
 class Bone
 {
 	friend class Skeleton;
+	friend class IK;
 public:
 	Bone(const aiNode* node, Bone* parent);
 	~Bone();
 	void DebugDraw(glm::mat4& parentCompound);
 	void ComputeAnimationVQS();
+
+	//Inverse Kinematics
+	void ComputeFullIKMove(glm::vec3 worldPoint, int recurseDepth);
+	bool ComputeSingleIKMove(glm::vec3 worldPoint, int recurseDepth, bool isEndEffector = false);
+	std::pair<bool, glm::vec3> EndEffectorPosition(glm::mat4 parentCompound);
+	kdn::vqs getIKanimVQS();
+	///glm::vec3 getWorldSpacePoint();
+	glm::quat mIKquat;
+	bool amEndEffector = false;
 
 	//structural data
 	std::string mName;

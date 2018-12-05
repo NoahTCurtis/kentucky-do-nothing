@@ -1,7 +1,10 @@
 #include <string>
 #include <iostream>
+#include <stack>
 
 #include "glm/gtc/matrix_transform.hpp"
+#define GLM_ENABLE_EXPERIMENTAL
+#include "glm/gtx/vector_angle.hpp"
 
 #include "skeleton.h"
 #include "render.h"
@@ -113,8 +116,48 @@ void Skeleton::StartAnimation(int index)
 	}
 }
 
+bool Skeleton::IK(IKrequest_t& request)
+{
+	//(TEMP)
+	if (std::string(request.endEffectorName).length() == 0)
+		strcpy_s<IKREQUEST_T_BUFFERSIZE>(request.endEffectorName, "mixamorig:RightHand");
+
+	//find bone
+	auto endEffector = mBoneMap.find(request.endEffectorName);
+	if (endEffector == mBoneMap.end())
+		return false;
+	mLastIKBoneName = request.endEffectorName;
+
+	//perform IK request
+	endEffector->second->ComputeFullIKMove(request.targetWorldPoint, request.depth);
+	return true;
+}
+
+void Skeleton::ResetAllIKData()
+{
+	std::stack<Bone*> bones;
+	bones.push(mRootBone);
+	while (!bones.empty())
+	{
+		Bone* bone = bones.top();
+		bones.pop();
+		for (unsigned i = 0; i < bone->mNumChildren; i++)
+			bones.push(bone->mChildren[i]);
+
+		bone->amEndEffector = false;
+		bone->mIKquat.w = 1;
+		bone->mIKquat.x = bone->mIKquat.y = bone->mIKquat.z = 0;
+	}
+}
+
+
+
 Bone::Bone(const aiNode* node, Bone* parent)
 {
+	//initialize members
+	mIKquat.w = 1;
+	mIKquat.x = mIKquat.y = mIKquat.z = 0;
+
 	//copy data
 	std::memcpy(&mTransform, &node->mTransformation, 16 * sizeof(float));
 	mTransform = glm::transpose(mTransform);
@@ -152,6 +195,9 @@ void Bone::DebugDraw(glm::mat4& parentCompound)
 
 	//extract animation data
 	ComputeAnimationVQS();
+
+	//interpolate to IK's
+	mAnimTransform.q = glm::slerp(mAnimTransform.q, mIKquat, mSkeleton->mIKfader01);
 
 	//compute worldspace start/end points
 	mCompoundTransform = parentCompound * mAnimTransform.toMat4();
@@ -216,9 +262,6 @@ glm::quat get(const aiQuatKey& key)
 {
 	return glm::quat(key.mValue.w, key.mValue.x, key.mValue.y, key.mValue.z);
 }
-
-
-
 void Bone::ComputeAnimationVQS()
 {
 	if (mAiNodeAnim == nullptr)
@@ -274,8 +317,63 @@ void Bone::ComputeAnimationVQS()
 	if (Input->IsDown(Keys::Three)) fader = 0;
 	glm::vec3 scaleKey = glm::mix(get(aiScaleA), get(aiScaleB), fader);
 
+	//this is some (TEMP) stuff to freeze mixamo's in place
 	if (mName.compare("mixamorig:Hips") == 0)
 		translateKey.z = 0;
 
 	mAnimTransform = kdn::vqs(translateKey, rotateKey, scaleKey);
 }
+
+void Bone::ComputeFullIKMove(glm::vec3 targetWorldPoint, int recurseDepth)
+{
+	int tries = 1;
+	while (tries--)
+		if (!ComputeSingleIKMove(targetWorldPoint, recurseDepth, true))
+			return;
+}
+
+bool Bone::ComputeSingleIKMove(glm::vec3 targetWorldPoint, int recurseDepth, bool isEndEffector)
+{
+	if (this == nullptr) return false;
+	if (recurseDepth == 0 && !isEndEffector) return false;
+
+	glm::vec3 jointPos = getWorldSpacePoint();
+
+	if (isEndEffector)
+	{
+		std::cout << mName << " (" << jointPos.x << ", " << jointPos.y << ", " << jointPos.z << ")" << std::endl;
+		return mParent->ComputeSingleIKMove(targetWorldPoint, recurseDepth);
+	}
+	else
+	{
+		bool moveMade = false;
+
+		glm::vec3 toEndEffector = endEffectorWorldPoint - jointPos;
+		glm::vec3 toTarget = targetWorldPoint - jointPos;
+
+		float angle = glm::angle(toEndEffector, toTarget);
+
+		glm::vec3 axis = glm::cross(toEndEffector, toTarget);
+
+		mIKquat = glm::angleAxis(mSkeleton->mIKfader01 * angle, axis); //should multiply instead of setting
+
+		std::cout << mName << std::endl;
+		return mParent->ComputeSingleIKMove(targetWorldPoint, recurseDepth - 1) || moveMade;
+	}
+}
+
+std::pair<bool, glm::vec3> Bone::EndEffectorPosition(glm::mat4 parentCompound)
+{
+	return std::pair<bool, glm::vec3>();
+}
+
+kdn::vqs Bone::getIKanimVQS()
+{
+	return kdn::vqs(mAnimTransform.v, mIKquat, mAnimTransform.s);
+}
+
+///glm::vec3 Bone::getWorldSpacePoint()
+///{
+///	///return glm::vec3(getIKanimVQS * glm::vec4(0, 0, 0, 1.0f));
+///	return 
+///}

@@ -78,7 +78,6 @@ bool main_loop()
 			}
 		ImGui::End();
 
-		//*
 		ImGui::Begin("Curve Editor");
 			ImGui::InputInt("Line Segments (ignore)", &Globals.curve.lineSegments);
 			if(!ImGui::Checkbox("Show individual curves", &Globals.curve.showOriginalCurves))
@@ -105,7 +104,17 @@ bool main_loop()
 				sprintf_s(label, 256, "Point##%i", i);
 				ImGui::InputFloat3(label, reinterpret_cast<float*>(&Globals.curve.points[i]), 2);
 			}
-		ImGui::End();//*/
+		ImGui::End();
+
+		ImGui::Begin("IK");
+			static IKrequest_t ikreq;
+			ImGui::InputText("Bone Name", ikreq.endEffectorName, IKREQUEST_T_BUFFERSIZE);
+			ImGui::InputFloat3("Target Pos", &ikreq.targetWorldPoint.x, 3);
+			ImGui::InputInt("Depth", &ikreq.depth);
+			ImGui::SliderFloat("Fader", &Renderer::get()->skeleTemp.mIKfader01, 0, 1);
+			if (!Renderer::get()->skeleTemp.IK(ikreq))
+				ImGui::TextColored(ImVec4(1, 0, 0, 1), "Bone Not Found");
+		ImGui::End();
 	ImGui::Render();
 
 
