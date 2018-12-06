@@ -9,6 +9,7 @@
 namespace kdn
 {
 	glm::mat4 to_mat4(const aiQuaternion& aiQ);
+	glm::vec3 normalize(const glm::vec3& v);
 
 	/*class quat : public glm::highp_quat
 	{

@@ -48,6 +48,13 @@ glm::mat4 kdn::to_mat4(const aiQuaternion & aiQ)
 	return glm::mat4(1);
 }
 
+glm::vec3 kdn::normalize(const glm::vec3 & v)
+{
+	float l2 = v.x * v.x + v.y * v.y + v.z * v.z;
+	if (l2 == 0.0f) return glm::vec3(0);
+	return glm::vec3(v) / glm::sqrt(l2);
+}
+
 kdn::vqs::vqs()
 {
 	v = glm::vec3(0, 0, 0);

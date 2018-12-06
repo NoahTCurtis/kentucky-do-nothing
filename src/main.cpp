@@ -24,7 +24,6 @@
 struct GlobalData Globals;
 
 
-
 int main(void)
 {
 	//Initialize GLFW

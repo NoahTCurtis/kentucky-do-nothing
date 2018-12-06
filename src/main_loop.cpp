@@ -107,13 +107,13 @@ bool main_loop()
 		ImGui::End();
 
 		ImGui::Begin("IK");
-			static IKrequest_t ikreq;
-			ImGui::InputText("Bone Name", ikreq.endEffectorName, IKREQUEST_T_BUFFERSIZE);
-			ImGui::InputFloat3("Target Pos", &ikreq.targetWorldPoint.x, 3);
-			ImGui::InputInt("Depth", &ikreq.depth);
-			ImGui::SliderFloat("Fader", &Renderer::get()->skeleTemp.mIKfader01, 0, 1);
-			if (!Renderer::get()->skeleTemp.IK(ikreq))
-				ImGui::TextColored(ImVec4(1, 0, 0, 1), "Bone Not Found");
+			IK& ik = *(Renderer::get()->skeleTemp.ik);
+			ImGui::InputText("Bone Name", ik.endEffectorName, IK_BUFFER_SIZE);
+			ImGui::InputFloat3("Target Pos", &ik.targetWorldPoint.x, 3);
+			ImGui::InputInt("Depth", &ik.depth);
+			ImGui::SliderFloat("Fader", &ik.fader01, 0, 1);
+			///if (!ik.Compute())
+			///	ImGui::TextColored(ImVec4(1, 0, 0, 1), "Bone Not Found");
 		ImGui::End();
 	ImGui::Render();
 

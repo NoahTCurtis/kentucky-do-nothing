@@ -15,7 +15,7 @@
 
 Skeleton::Skeleton()
 {
-	
+	ik = new IK(*this);
 }
 
 void Skeleton::Initialize(const aiScene* scene)
@@ -35,6 +35,7 @@ Skeleton::~Skeleton()
 {
 	//SHOULD TELL ROOT BONE TO DESTROY ITS CHILDREN
 	delete mRootBone;
+	delete ik;
 }
 
 void Skeleton::Update(float dt)
@@ -84,11 +85,14 @@ void Skeleton::Update(float dt)
 		dt = dt + dt - dt;
 
 	//draw
+	if (mRootBone != nullptr)
+		mRootBone->ComputeAnimationVQS(modelToWorld.toMat4());
+	mBoneFound = ik->Compute();
 	DebugDraw();
 
 	////////////////////////////
 
-	//position the mesh
+	//position the mesh (TEMP)
 	for (auto& mesh : Renderer::get()->Meshes)
 	{
 		mesh->worldTransform = modelToWorld;
@@ -98,7 +102,7 @@ void Skeleton::Update(float dt)
 void Skeleton::DebugDraw()
 {
 	if (mRootBone != nullptr)
-		mRootBone->DebugDraw(modelToWorld.toMat4());
+		mRootBone->DebugDraw(modelToWorld.v);
 }
 
 void Skeleton::StartAnimation(int index)
@@ -116,39 +120,10 @@ void Skeleton::StartAnimation(int index)
 	}
 }
 
-bool Skeleton::IK(IKrequest_t& request)
-{
-	//(TEMP)
-	if (std::string(request.endEffectorName).length() == 0)
-		strcpy_s<IKREQUEST_T_BUFFERSIZE>(request.endEffectorName, "mixamorig:RightHand");
 
-	//find bone
-	auto endEffector = mBoneMap.find(request.endEffectorName);
-	if (endEffector == mBoneMap.end())
-		return false;
-	mLastIKBoneName = request.endEffectorName;
 
-	//perform IK request
-	endEffector->second->ComputeFullIKMove(request.targetWorldPoint, request.depth);
-	return true;
-}
 
-void Skeleton::ResetAllIKData()
-{
-	std::stack<Bone*> bones;
-	bones.push(mRootBone);
-	while (!bones.empty())
-	{
-		Bone* bone = bones.top();
-		bones.pop();
-		for (unsigned i = 0; i < bone->mNumChildren; i++)
-			bones.push(bone->mChildren[i]);
 
-		bone->amEndEffector = false;
-		bone->mIKquat.w = 1;
-		bone->mIKquat.x = bone->mIKquat.y = bone->mIKquat.z = 0;
-	}
-}
 
 
 
@@ -188,26 +163,23 @@ Bone::~Bone()
 		delete mChildren[i];
 }
 
-void Bone::DebugDraw(glm::mat4& parentCompound)
+void Bone::DebugDraw(glm::vec3 parentPosition)
 {
 	//dont do dumb stuff
 	assert(mAiNodeAnim == nullptr || mName.compare(mAiNodeAnim->mNodeName.C_Str()) == 0);
 
-	//extract animation data
-	ComputeAnimationVQS();
-
 	//interpolate to IK's
-	mAnimTransform.q = glm::slerp(mAnimTransform.q, mIKquat, mSkeleton->mIKfader01);
+	///mAnimTransform.q = glm::slerp(mAnimTransform.q, mIKquat, mSkeleton->mIKfader01);
 
 	//compute worldspace start/end points
-	mCompoundTransform = parentCompound * mAnimTransform.toMat4();
-	glm::vec3 startpos = glm::vec3(parentCompound * glm::vec4(0, 0, 0, 1.0f));
-	glm::vec3 endpos = glm::vec3(mCompoundTransform * glm::vec4(0, 0, 0, 1.0f));
+	glm::vec3 animPos = glm::vec3(mCompoundTransform * glm::vec4(0, 0, 0, 1.0f));
+	glm::vec3 ikPos = glm::vec3(mIKCompoundTransform * glm::vec4(0, 0, 0, 1.0f));
+	glm::vec3 myPos = glm::mix(animPos, ikPos, mIKfader01);
 	
 	//create debug line
 	DebugLine dl;
-	dl.start = startpos;
-	dl.end = endpos;
+	dl.start = parentPosition;
+	dl.end = myPos;
 	dl.startcolor = glm::vec3(1, 1, 1);
 	dl.endcolor = glm::vec3(1, 1, 1);
 
@@ -222,36 +194,8 @@ void Bone::DebugDraw(glm::mat4& parentCompound)
 		Renderer::get()->add_debug_line(dl);
 	}
 
-	//TELL ME! TELL ME ABOUT THE BONESSSS!!!
-	if (Input->IsTriggered(Keys::B))
-	{
-		if(mName.compare("RootNode") == 0)
-			std::cout << "\n\n\n";
-		std::cout
-			<< "["
-			<< glm::distance(dl.start, dl.end)
-			<< "] "
-			<< mName
-			<< " drew a line from ("
-			<< dl.start.x
-			<< ","
-			<< dl.start.y
-			<< ","
-			<< dl.start.z
-			<< ") to ("
-			<< dl.end.x
-			<< ","
-			<< dl.end.y
-			<< ","
-			<< dl.end.z
-			<< ")\n";
-	}
-
-	///std::cout << mName << ": (" << dl.start.x << ", " << dl.start.y << ", " << dl.start.z << ") -> ("
-	///	<< dl.end.x << ", " << dl.end.y << ", " << dl.end.z << ")\n";
-
 	for (unsigned i = 0; i < mNumChildren; i++)
-		mChildren[i]->DebugDraw(mCompoundTransform);
+		mChildren[i]->DebugDraw(myPos);
 }
 
 glm::vec3 get(const aiVectorKey& key)
@@ -262,11 +206,17 @@ glm::quat get(const aiQuatKey& key)
 {
 	return glm::quat(key.mValue.w, key.mValue.x, key.mValue.y, key.mValue.z);
 }
-void Bone::ComputeAnimationVQS()
+void Bone::ComputeAnimationVQS(glm::mat4& parentCompound)
 {
 	if (mAiNodeAnim == nullptr)
 	{
+		//finalize transform data
 		mAnimTransform = kdn::vqs();
+		mCompoundTransform = parentCompound;
+
+		//propagate
+		for (unsigned i = 0; i < mNumChildren; i++)
+			mChildren[i]->ComputeAnimationVQS(parentCompound);
 		return;
 	}
 
@@ -303,7 +253,6 @@ void Bone::ComputeAnimationVQS()
 	}
 
 	//Interpolate between A-B keys
-	//convert to glm/kdn
 	double fader;
 	fader = kdn::unterpolate(aiVecA.mTime, aiVecB.mTime, (double)mSkeleton->mAnimTime);
 	if (Input->IsDown(Keys::One)) fader = 0;
@@ -317,63 +266,115 @@ void Bone::ComputeAnimationVQS()
 	if (Input->IsDown(Keys::Three)) fader = 0;
 	glm::vec3 scaleKey = glm::mix(get(aiScaleA), get(aiScaleB), fader);
 
-	//this is some (TEMP) stuff to freeze mixamo's in place
-	if (mName.compare("mixamorig:Hips") == 0)
+	if (mName.compare("mixamorig:Hips") == 0) //this is some (TEMP) stuff to freeze mixamo's in place
 		translateKey.z = 0;
 
+	//convert to glm/kdn
 	mAnimTransform = kdn::vqs(translateKey, rotateKey, scaleKey);
+
+	//finalize transform data
+	mCompoundTransform = parentCompound * mAnimTransform.toMat4();
+
+	if (mName.compare("mixamorig:RightHand") == 0)
+		scaleKey = scaleKey;
+	//propagate
+	for (unsigned i = 0; i < mNumChildren; i++)
+		mChildren[i]->ComputeAnimationVQS(mCompoundTransform);
 }
 
-void Bone::ComputeFullIKMove(glm::vec3 targetWorldPoint, int recurseDepth)
+kdn::vqs Bone::mIKanimVQS()
 {
-	int tries = 1;
-	while (tries--)
-		if (!ComputeSingleIKMove(targetWorldPoint, recurseDepth, true))
-			return;
+	return kdn::vqs(mAnimTransform.v, mIKquat, mAnimTransform.v);
 }
 
-bool Bone::ComputeSingleIKMove(glm::vec3 targetWorldPoint, int recurseDepth, bool isEndEffector)
+
+
+
+
+
+IK::IK(Skeleton & S)
+	: s(S)
 {
-	if (this == nullptr) return false;
-	if (recurseDepth == 0 && !isEndEffector) return false;
+}
 
-	glm::vec3 jointPos = getWorldSpacePoint();
+bool IK::Compute()
+{
+	//(TEMP) pick a good default bone
+	if (std::string(endEffectorName).length() == 0)
+		strcpy_s<IK_BUFFER_SIZE>(endEffectorName, "mixamorig:RightHand");
 
-	if (isEndEffector)
-	{
-		std::cout << mName << " (" << jointPos.x << ", " << jointPos.y << ", " << jointPos.z << ")" << std::endl;
-		return mParent->ComputeSingleIKMove(targetWorldPoint, recurseDepth);
+	//Fix stuff
+	depth = glm::max(depth, 0);
+
+	//find bone
+	auto endEffector = s.mBoneMap.find(endEffectorName);
+	if (endEffector == s.mBoneMap.end())
+		return false;
+
+	//Clean those beautiful bones
+	Reset();
+
+	//get bone list
+	bones.clear();
+	Bone* b = endEffector->second;
+	for (int d = depth; d >= 0; d--) {
+		bones.push_back(b);
+		b->mIKfader01 = fader01;
+		b = b->mParent;
 	}
-	else
+
+	//do IK
+	for (int attempt = 1; attempt > 0; attempt--)
 	{
-		bool moveMade = false;
+		for (int i = 1; i <= depth; i++)
+		{
+			b = bones[i];
+			glm::vec3 bonePos = IKBonePos(i);
 
-		glm::vec3 toEndEffector = endEffectorWorldPoint - jointPos;
-		glm::vec3 toTarget = targetWorldPoint - jointPos;
+			glm::vec3 toEnd = kdn::normalize(IKBonePos(0) - bonePos);
+			glm::vec3 toTarget = kdn::normalize(targetWorldPoint - bonePos);
 
-		float angle = glm::angle(toEndEffector, toTarget);
+			float angle = glm::angle(toEnd, toTarget);
+			glm::vec3 axis = kdn::normalize(glm::cross(toEnd, toTarget));
 
-		glm::vec3 axis = glm::cross(toEndEffector, toTarget);
+			glm::quat angleAxis = glm::normalize(glm::angleAxis(angle, axis));
 
-		mIKquat = glm::angleAxis(mSkeleton->mIKfader01 * angle, axis); //should multiply instead of setting
+			b->mIKquat = angleAxis * b->mIKquat;
+		}
+	}
 
-		std::cout << mName << std::endl;
-		return mParent->ComputeSingleIKMove(targetWorldPoint, recurseDepth - 1) || moveMade;
+	//Ensure all bones know their places
+	IKBonePos(-1);
+
+	return true;
+}
+
+void IK::Reset()
+{
+	for (auto& p : s.mBoneMap)
+	{
+		Bone* b = p.second;
+		b->mIKfader01 = 0;
+		b->mIKquat = b->mAnimTransform.q;
 	}
 }
 
-std::pair<bool, glm::vec3> Bone::EndEffectorPosition(glm::mat4 parentCompound)
+glm::vec3 IK::IKBonePos(int depth)
 {
-	return std::pair<bool, glm::vec3>();
-}
+	if (depth == -1)
+		depth = (int)bones.size() - 1;
 
-kdn::vqs Bone::getIKanimVQS()
-{
-	return kdn::vqs(mAnimTransform.v, mIKquat, mAnimTransform.s);
-}
+	glm::mat4 compound;
+	if (bones[0]->mParent == nullptr)
+	{}
+	else compound = bones[0]->mParent->mCompoundTransform;
 
-///glm::vec3 Bone::getWorldSpacePoint()
-///{
-///	///return glm::vec3(getIKanimVQS * glm::vec4(0, 0, 0, 1.0f));
-///	return 
-///}
+	for (int i = 0; i <= depth; i++)
+	{
+		compound = compound * bones[i]->mIKanimVQS().toMat4();
+
+		bones[i]->mIKCompoundTransform = compound;
+	}
+
+	return glm::vec3(compound * glm::vec4(0, 0, 0, 1.0f));
+}

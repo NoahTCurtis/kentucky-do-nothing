@@ -10,19 +10,7 @@
 
 class Skeleton;
 class Bone;
-
-#define IKREQUEST_T_BUFFERSIZE 64
-typedef struct
-{
-	glm::vec3 targetWorldPoint;
-	int depth = 3;
-	char endEffectorName[IKREQUEST_T_BUFFERSIZE] = { 0 };
-} IKrequest_t;
-
-class IK
-{
-
-};
+class IK;
 
 class Skeleton
 {
@@ -43,10 +31,8 @@ public:
 	float mCurveTime01 = 0.0f;
 
 	//Inverse Kinematics
-	bool IK(IKrequest_t& request);
-	void ResetAllIKData();
-	float mIKfader01 = 1.0f;
-	std::string mLastIKBoneName; //for convenience
+	IK* ik;
+	bool mBoneFound;
 
 	kdn::vqs modelToWorld; //Transform component
 private:
@@ -65,17 +51,14 @@ class Bone
 public:
 	Bone(const aiNode* node, Bone* parent);
 	~Bone();
-	void DebugDraw(glm::mat4& parentCompound);
-	void ComputeAnimationVQS();
+	void DebugDraw(glm::vec3 parentPosition);
+	void ComputeAnimationVQS(glm::mat4& parentCompound);
 
 	//Inverse Kinematics
-	void ComputeFullIKMove(glm::vec3 worldPoint, int recurseDepth);
-	bool ComputeSingleIKMove(glm::vec3 worldPoint, int recurseDepth, bool isEndEffector = false);
-	std::pair<bool, glm::vec3> EndEffectorPosition(glm::mat4 parentCompound);
-	kdn::vqs getIKanimVQS();
-	///glm::vec3 getWorldSpacePoint();
+	kdn::vqs mIKanimVQS();
 	glm::quat mIKquat;
-	bool amEndEffector = false;
+	float mIKfader01;
+	glm::mat4 mIKCompoundTransform;
 
 	//structural data
 	std::string mName;
@@ -83,8 +66,8 @@ public:
 	Bone* mParent = nullptr;
 
 	//mathematical data
-	glm::mat4 mTransform; //boneSpace to parentBoneSpace
-	glm::mat4 mCompoundTransform; //boneSpace to modelSpace
+	glm::mat4 mTransform; //boneSpace to parentBoneSpace (bindpose)
+	glm::mat4 mCompoundTransform; //boneSpace to modelSpace (or to worldspace if started with model2world)
 
 	//children
 	unsigned mNumChildren = -1;
@@ -99,4 +82,23 @@ public:
 	///unsigned mNumMeshes;
 	/** The meshes of this node. Each entry is an index into the mesh */
 	///std::vector<unsigned> mMeshes;
+};
+
+
+#define IK_BUFFER_SIZE 64
+class IK
+{
+public:
+	IK(Skeleton& S);
+	bool Compute();
+	void Reset();
+	glm::vec3 IKBonePos(int depth);
+
+	Skeleton& s;
+
+	glm::vec3 targetWorldPoint = glm::vec3(0);
+	int depth = 3;
+	char endEffectorName[IK_BUFFER_SIZE] = { 0 };
+	std::vector<Bone*> bones;
+	float fader01 = 1.0f;
 };
