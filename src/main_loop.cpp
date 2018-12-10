@@ -112,10 +112,21 @@ bool main_loop()
 			ImGui::InputFloat3("Target Pos", &ik.targetWorldPoint.x, 3);
 			ImGui::InputInt("Depth", &ik.depth);
 			ImGui::SliderFloat("Fader", &ik.fader01, 0, 1);
+			ImGui::InputText("Breaker", ik.boneBreakName, IK_BUFFER_SIZE);
 			///if (!ik.Compute())
 			///	ImGui::TextColored(ImVec4(1, 0, 0, 1), "Bone Not Found");
 		ImGui::End();
 	ImGui::Render();
+
+	//(TEMP) move the cubey boi to the IK target pos
+	glm::vec3 moveTarget;
+	moveTarget.x = float(Input->IsDown(Keys::Right) - Input->IsDown(Keys::Left));
+	moveTarget.y = float(Input->IsDown(Keys::PageUp) - Input->IsDown(Keys::PageDown));
+	moveTarget.z = float(Input->IsDown(Keys::Down) - Input->IsDown(Keys::Up));
+	Renderer::get()->skeleTemp.ik->targetWorldPoint += moveTarget * clock.dt() * 1.0f;
+	Renderer::get()->Meshes.begin().operator*()->worldTransform.v = Renderer::get()->skeleTemp.ik->targetWorldPoint;
+	Renderer::get()->Meshes.begin().operator*()->worldTransform.s = glm::vec3(0.1f);
+	Renderer::get()->Meshes.begin().operator*()->visible = true;
 
 
 	//update systems

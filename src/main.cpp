@@ -9,7 +9,7 @@
 #include <ctime>
 
 #include "callbacks.h"
-#include "Globals.h"
+#include "globals.h"
 #include "input.h"
 #include "main_loop.h"
 #include "mesh.h"

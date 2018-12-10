@@ -51,14 +51,14 @@ class Bone
 public:
 	Bone(const aiNode* node, Bone* parent);
 	~Bone();
-	void DebugDraw(glm::vec3 parentPosition);
-	void ComputeAnimationVQS(glm::mat4& parentCompound);
+	void DebugDraw(glm::mat4& parentCompound);
+	void ComputeAnimationVQS();
+	void QuickCompoundPropogation(glm::mat4& parentCompound);
 
 	//Inverse Kinematics
 	kdn::vqs mIKanimVQS();
 	glm::quat mIKquat;
 	float mIKfader01;
-	glm::mat4 mIKCompoundTransform;
 
 	//structural data
 	std::string mName;
@@ -92,13 +92,17 @@ public:
 	IK(Skeleton& S);
 	bool Compute();
 	void Reset();
-	glm::vec3 IKBonePos(int depth);
+	glm::vec3 IK_EndEffectorPosRelativeToJoint(int);
+	glm::vec3 IK_TargetPosRelativeToJoint(int);
 
 	Skeleton& s;
 
-	glm::vec3 targetWorldPoint = glm::vec3(0);
+	glm::vec3 targetWorldPoint = glm::vec3(-1, 1.3, 0);
 	int depth = 3;
 	char endEffectorName[IK_BUFFER_SIZE] = { 0 };
 	std::vector<Bone*> bones;
 	float fader01 = 1.0f;
+
+	//TEMP
+	char boneBreakName[IK_BUFFER_SIZE] = { 0 };
 };
