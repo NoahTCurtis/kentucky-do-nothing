@@ -157,6 +157,7 @@
     <ClCompile Include="..\..\src\callbacks.cpp" />
     <ClCompile Include="..\..\src\camera.cpp" />
     <ClCompile Include="..\..\src\clock.cpp" />
+    <ClCompile Include="..\..\src\cloth.cpp" />
     <ClCompile Include="..\..\src\curve.cpp" />
     <ClCompile Include="..\..\src\glad.c" />
     <ClCompile Include="..\..\src\imgui\imgui.cpp" />
@@ -183,6 +184,7 @@
     <ClInclude Include="..\..\inc\callbacks.h" />
     <ClInclude Include="..\..\inc\camera.h" />
     <ClInclude Include="..\..\inc\clock.h" />
+    <ClInclude Include="..\..\inc\cloth.h" />
     <ClInclude Include="..\..\inc\curve.h" />
     <ClInclude Include="..\..\inc\globals.h" />
     <ClInclude Include="..\..\inc\input.h" />

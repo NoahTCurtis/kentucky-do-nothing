@@ -74,6 +74,9 @@ int main(void)
 
 	ReadAssimpFile(get_full_file_path("samba.fbx", "res\\models"));
 
+	//Make a cloth
+	Globals.cloth = new Cloth(40,40);
+
 	//Main loop!
 	while ( main_loop() == false );
 

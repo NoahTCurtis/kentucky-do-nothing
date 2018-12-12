@@ -112,9 +112,22 @@ bool main_loop()
 			ImGui::InputFloat3("Target Pos", &ik.targetWorldPoint.x, 3);
 			ImGui::InputInt("Depth", &ik.depth);
 			ImGui::SliderFloat("Fader", &ik.fader01, 0, 1);
-			ImGui::InputText("Breaker", ik.boneBreakName, IK_BUFFER_SIZE);
+			///ImGui::InputText("Breaker", ik.boneBreakName, IK_BUFFER_SIZE);
 			///if (!ik.Compute())
 			///	ImGui::TextColored(ImVec4(1, 0, 0, 1), "Bone Not Found");
+		ImGui::End();
+			
+		ImGui::Begin("Cloth");
+			if(ImGui::Button("Reset Cloth"))
+				Globals.cloth->Reset();
+			ImGui::InputInt("Substeps", &Globals.cloth->substeps);
+			ImGui::SliderFloat3("Stiffness", &Globals.cloth->springStiff.x, 0, 200);
+			ImGui::SliderFloat3("Damping", &Globals.cloth->springDamp.x, 0, 10);
+			ImGui::SliderFloat("Velocity Damping", &Globals.cloth->velocityDamping, 0, 1);
+			ImGui::SliderFloat("[BAD CONSTRAINT]", &Globals.cloth->constraintStrength, 0, 2);
+			ImGui::InputFloat3("Gravity", &Globals.cloth->gravity[0], 3);
+			ImGui::InputFloat3("Wind Direction", &Globals.cloth->windDirection[0], 3);
+			ImGui::SliderFloat4("Sphere", &Globals.cloth->sphere[0], -1, 1);
 		ImGui::End();
 	ImGui::Render();
 
@@ -134,6 +147,10 @@ bool main_loop()
 	clock.recompute_delta_time();
 	Camera::get()->Update();
 
+	//Update Cloth
+	Globals.cloth->Update(clock.dt());
+	Globals.cloth->DebugDraw();
+
 	//rename window
 	std::stringstream ss;
 	ss << "CS460 Advanced Demo (" << (int)clock.fps() << ") " << clock.dt();
@@ -141,7 +158,7 @@ bool main_loop()
 
 	//create grid debug lines
 	DebugLine dbl;
-	int gridSize = 20;
+	int gridSize = 7;
 	glm::vec3 camPos(glm::floor(Camera::get()->position.x), 0, glm::floor(Camera::get()->position.z));
 	for (int i = -gridSize; i <= gridSize; i++)
 	{
@@ -156,7 +173,7 @@ bool main_loop()
 	}
 	
 	//draw things other than meshes
-	Globals.curve.debug_draw();
+	///Globals.curve.debug_draw();
 	Renderer::get()->skeleTemp.Update(clock.dt());
 
 	//finish render

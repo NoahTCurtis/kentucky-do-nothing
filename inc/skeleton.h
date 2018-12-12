@@ -101,7 +101,7 @@ public:
 	int depth = 3;
 	char endEffectorName[IK_BUFFER_SIZE] = { 0 };
 	std::vector<Bone*> bones;
-	float fader01 = 1.0f;
+	float fader01 = 0.0f;
 
 	//TEMP
 	char boneBreakName[IK_BUFFER_SIZE] = { 0 };

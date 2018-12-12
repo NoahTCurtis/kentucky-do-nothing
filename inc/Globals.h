@@ -3,6 +3,7 @@
 #include "glm/glm.hpp"
 
 #include "curve.h"
+#include "cloth.h"
 
 struct GlobalData
 {
@@ -11,10 +12,11 @@ struct GlobalData
 	glm::vec3 clear_color = { 0.0f, 0.0f, 0.0f }; // { 0.2f, 0.3f, 0.3f };
 	Curve curve;
 	float quatExponent = 1.0f;
-	bool animateOnCurve = false;
+	bool animateOnCurve = true;
 	glm::vec3 quatDebugVec = { 0.0f, 0.0f, 0.0f };
 	float animationSpeed = 1.0f;
 	float moveAnimateSpeedRatio = 1.0f;
 	float computedMoveSpeed = 0.0f;
+	Cloth* cloth = nullptr;
 };
 extern struct GlobalData Globals;

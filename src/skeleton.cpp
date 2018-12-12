@@ -86,7 +86,8 @@ void Skeleton::Update(float dt)
 	//draw
 	if (mRootBone != nullptr)
 		mRootBone->ComputeAnimationVQS();
-	mBoneFound = ik->Compute();
+	if(ik->fader01 > 0)
+		mBoneFound = ik->Compute();
 	DebugDraw();
 }
 

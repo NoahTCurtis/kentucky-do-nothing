@@ -29,7 +29,7 @@ public:
 	void add_mesh(Mesh* mesh);
 	void render_meshes();
 	void render_debug_lines();
-	void add_debug_line(DebugLine dl);
+	void add_debug_line(DebugLine& dl);
 	static Renderer* get();
 
 	//dumb shit that shouldnt be here

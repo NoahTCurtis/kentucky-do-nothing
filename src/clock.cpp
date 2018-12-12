@@ -1,7 +1,8 @@
 #include <iostream>
 #include <cmath>
 
-#include <GLFW/glfw3.h>
+#include "GLFW/glfw3.h"
+#include "glm/glm.hpp"
 
 #include "clock.h"
 
@@ -28,7 +29,7 @@ float Clock::fps()
 
 float Clock::dt()
 {
-	return static_cast<float>(delta_time);
+	return static_cast<float>(glm::max(delta_time, 1.0 / 30.0));
 }
 
 double Clock::ddt()

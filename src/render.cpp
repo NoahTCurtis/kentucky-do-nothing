@@ -152,7 +152,7 @@ void Renderer::render_debug_lines()
 }
 
 
-void Renderer::add_debug_line(DebugLine dl)
+void Renderer::add_debug_line(DebugLine& dl)
 {
 	DebugLines.push_back(dl);
 }

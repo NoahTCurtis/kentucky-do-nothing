@@ -53,5 +53,6 @@ void Camera::Update()
 	position += movement.z * localUp * clock.dt();
 	//*/
 
-	look = -position + up;
+	///look = -position + up;
+	look = glm::vec3(0.5, 0.5, 0) - position;
 }
