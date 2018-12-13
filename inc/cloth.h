@@ -33,10 +33,10 @@ public:
 	float constraintStrength = 0.0f; //DEPRECATED
 	glm::vec3 gravity = glm::vec3(0, -0.1, 0);
 	int substeps = 1;
-	glm::vec3 springStiff = glm::vec3(10, 10, 10);
+	glm::vec3 springStiff = glm::vec3(100, 100, 100);
 	glm::vec3 springDamp = glm::vec3(0.3f, 0.3f, 0.5f);
 	glm::vec3 windDirection = glm::vec3(0, 0, -5);
-	glm::vec4 sphere = glm::vec4(0.5, 0.5, 1.0, 0.2);
+	glm::vec4 sphere = glm::vec4(0.5, 0.5, 1.0, 0.5);
 
 	std::vector<std::vector<glm::vec3>> position;
 	std::vector<std::vector<glm::vec3>> velocity;

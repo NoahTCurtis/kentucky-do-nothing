@@ -173,7 +173,7 @@ bool main_loop()
 	}
 	
 	//draw things other than meshes
-	///Globals.curve.debug_draw();
+	Globals.curve.debug_draw();
 	Renderer::get()->skeleTemp.Update(clock.dt());
 
 	//finish render

@@ -72,10 +72,10 @@ int main(void)
 	Renderer::get()->add_mesh(newMesh);
 	newMesh->worldTransform.v = glm::vec3(0, 1, -1);
 
-	ReadAssimpFile(get_full_file_path("samba.fbx", "res\\models"));
+	ReadAssimpFile(get_full_file_path("walking.fbx", "res\\models"));
 
 	//Make a cloth
-	Globals.cloth = new Cloth(40,40);
+	Globals.cloth = new Cloth(50,50);
 
 	//Main loop!
 	while ( main_loop() == false );

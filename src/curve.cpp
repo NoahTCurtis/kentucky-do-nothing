@@ -16,6 +16,7 @@ Curve::Curve()
 	points[1] = glm::vec3(-4, 1,  4);
 	points[2] = glm::vec3(-4, 1, -4);
 	points[3] = glm::vec3( 4, 1, -4);
+	recompute_arc_length_table();
 }
 
 glm::vec3 Curve::operator()(float t, bool normalize)

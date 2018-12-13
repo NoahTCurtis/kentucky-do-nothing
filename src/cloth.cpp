@@ -1,8 +1,11 @@
+#define GLM_ENABLE_EXPERIMENTAL
+#include "glm/gtx/vector_angle.hpp"
+
 #include "cloth.h"
 #include "render.h"
 #include "util.h"
 #include "input.h"
-
+#include "camera.h"
 
 Cloth::Cloth(int w_, int h_)
 	: width(w_), height(h_)
@@ -112,34 +115,33 @@ void Cloth::DebugDraw()
 
 void Cloth::Update(float dt)
 {
-	//wiggle
-	if(Input->IsDown(Keys::T))
-	for (int w = 0; w < width; w++)
-		for (int h = 0; h < height; h++)
-			if(movable[w][h])
-				acceler8[w][h] += glm::vec3(randRange(-1, 1), randRange(-1,1), randRange(-1, 1));
-
-	//push
-	if (Input->IsDown(Keys::G))
-		for (int w = 0; w < width; w++)
-			for (int h = 0; h < height; h++)
-				if (movable[w][h])
-					acceler8[w][h] += glm::vec3(randRange(-1, 1), randRange(-1, 1), -7.0f);
-
-	//wind
-	if (Input->IsDown(Keys::V))
-		Wind(windDirection);
-
-	//reset
-	if (Input->IsTriggered(Keys::R))
-		Reset();
-
 	//compute with substep
 	float substepLength = 1.0f / (float)substeps;
-
-	//update
 	for (int step = 0; step < substeps; step++)
 	{
+		//wiggle
+		if(Input->IsDown(Keys::T))
+		for (int w = 0; w < width; w++)
+			for (int h = 0; h < height; h++)
+				if(movable[w][h])
+					acceler8[w][h] += glm::vec3(randRange(-1, 1), randRange(-1,1), randRange(-1, 1));
+
+		//push
+		if (Input->IsDown(Keys::G))
+			for (int w = 0; w < width; w++)
+				for (int h = 0; h < height; h++)
+					if (movable[w][h])
+						acceler8[w][h] += glm::vec3(randRange(-1, 1), randRange(-1, 1), -7.0f);
+
+		//wind
+		if (Input->IsDown(Keys::V))
+			Wind(windDirection);
+
+		//reset
+		if (Input->IsTriggered(Keys::R))
+			Reset();
+
+		//update
 		Constrain_Structural();
 		Constrain_Shear();
 		Constrain_Bend();
@@ -273,6 +275,7 @@ void Cloth::Wind(glm::vec3 direction)
 
 void Cloth::Collide()
 {
+	//resolve collision
 	for (int w = 0; w < width; w++)
 		for (int h = 0; h < height; h++)
 			if (movable[w][h])
@@ -284,4 +287,34 @@ void Cloth::Collide()
 				float depth = dist - sphere.w;
 				position[w][h] -= vec * glm::min(0.0f, depth);
 			}
+
+	//Draw the sphere
+	glm::vec3 sphere2cam = Camera::get()->position - glm::vec3(sphere);
+	glm::vec3 xforward(1, 0, 0);
+	float ang = glm::angle(xforward, sphere2cam);
+	glm::vec3 axis = glm::cross(xforward, sphere2cam);
+	glm::mat4 lookat = glm::mat4(glm::normalize(glm::angleAxis(ang, axis)));
+
+	std::vector<glm::vec3> points;
+	float segments = 30.0f;
+	for (float s = 0.0f; s < segments; s += 1.0f){
+		float t = s / segments;
+		t *= 2.0f * 3.14159265f;
+		points.push_back(glm::vec3(0, glm::sin(t), glm::cos(t)) * sphere.w);
+	}
+
+	for (auto& p : points) {
+		///p = glm::vec3(lookat * glm::vec4(p, 1));
+		p += glm::vec3(sphere);
+	}
+
+	DebugLine dl;
+	dl.startcolor = dl.endcolor = glm::vec3(1, 0.6, 0.7);
+	dl.end = points[points.size() - 1];
+	for (auto& p : points)
+	{
+		dl.start = dl.end;
+		dl.end = p;
+		Renderer::get()->add_debug_line(dl);
+	}
 }

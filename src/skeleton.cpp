@@ -77,9 +77,12 @@ void Skeleton::Update(float dt)
 	if (mAnimTime > anim->mDuration)
 		mAnimTime -= (float)anim->mDuration;
 
+	float prevmCurveTime01 = mCurveTime01;
 	mCurveTime01 += (dt * Globals.animationSpeed) / (Globals.curve.curveLength * Globals.moveAnimateSpeedRatio);
 	if (mCurveTime01 > 1.0f)
 		mCurveTime01 -= 1.0f;
+	if (mCurveTime01 < prevmCurveTime01)
+		ik->Reset();
 	
 	mAnimTime01 = mAnimTime / (float)anim->mDuration;
 
@@ -307,7 +310,7 @@ bool IK::Compute()
 {
 	//(TEMP) pick a good default bone
 	if (std::string(endEffectorName).length() == 0)
-		strcpy_s<IK_BUFFER_SIZE>(endEffectorName, "mixamorig:RightHand");
+		strcpy_s<IK_BUFFER_SIZE>(endEffectorName, "mixamorig:RightHandIndex3");
 
 	//Fix stuff
 	depth = glm::max(depth, 0);
@@ -318,7 +321,7 @@ bool IK::Compute()
 		return false;
 
 	//Clean those beautiful bones
-	if(depth == 0)
+	if(depth == 0 || Input->IsTriggered(Keys::R))
 		Reset();
 
 	//get bone list
@@ -331,7 +334,7 @@ bool IK::Compute()
 	}
 
 	//do IK
-	for (int attempt = 0; attempt <= depth * 2; attempt++)
+	for (int attempt = 0; attempt <= depth * 3; attempt++)
 	{
 		for (int i = 1; i <= depth; i++)
 		{
@@ -350,7 +353,7 @@ bool IK::Compute()
 
 			b->mIKquat = angleAxis * b->mIKquat;
 		}
-		///if (glm::distance2(glm::vec3(bones[0]->mCompoundTransform * glm::vec4(0, 0, 0, 1.0f)), targetWorldPoint) <= 0.1f) break;
+		if (glm::distance2(glm::vec3(bones[0]->mCompoundTransform * glm::vec4(0, 0, 0, 1.0f)), targetWorldPoint) <= 0.1f) break;
 	}
 
 	return true;

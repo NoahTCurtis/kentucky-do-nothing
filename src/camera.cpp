@@ -1,6 +1,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "render.h"
 #include "camera.h"
 #include "Globals.h"
 #include "input.h"
@@ -10,7 +11,7 @@ Camera* Camera::instance_ = nullptr;
 
 Camera::Camera()
 {
-	position = glm::vec3(0, 1, 1);
+	position = glm::vec3(3, 2, 3);
 	look = glm::vec3(0, 1, -1);
 	up = glm::vec3(0,1, 0);
 }
@@ -45,7 +46,7 @@ void Camera::Update()
 	glm::vec3 localUp = glm::normalize(glm::cross(localRight, look));
 	glm::vec3 localLook = glm::normalize(look);
 
-	//*
+	/*
 	position += movement * clock.dt();
 	/*/
 	position += movement.x * localRight * clock.dt();
@@ -54,5 +55,5 @@ void Camera::Update()
 	//*/
 
 	///look = -position + up;
-	look = glm::vec3(0.5, 0.5, 0) - position;
+	look = glm::vec3(0, 1, 0) - position;
 }

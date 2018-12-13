@@ -97,11 +97,11 @@ public:
 
 	Skeleton& s;
 
-	glm::vec3 targetWorldPoint = glm::vec3(-1, 1.3, 0);
-	int depth = 3;
+	glm::vec3 targetWorldPoint = glm::vec3(-2, 1.7, 0);
+	int depth = 5;
 	char endEffectorName[IK_BUFFER_SIZE] = { 0 };
 	std::vector<Bone*> bones;
-	float fader01 = 0.0f;
+	float fader01 = 1.0f;
 
 	//TEMP
 	char boneBreakName[IK_BUFFER_SIZE] = { 0 };

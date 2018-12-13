@@ -29,7 +29,7 @@ float Clock::fps()
 
 float Clock::dt()
 {
-	return static_cast<float>(glm::max(delta_time, 1.0 / 30.0));
+	return static_cast<float>(glm::min(delta_time, 1.0 / 30.0));
 }
 
 double Clock::ddt()

@@ -14,8 +14,8 @@ struct GlobalData
 	float quatExponent = 1.0f;
 	bool animateOnCurve = true;
 	glm::vec3 quatDebugVec = { 0.0f, 0.0f, 0.0f };
-	float animationSpeed = 1.0f;
-	float moveAnimateSpeedRatio = 1.0f;
+	float animationSpeed = 23.0f;
+	float moveAnimateSpeedRatio = 21.0f;
 	float computedMoveSpeed = 0.0f;
 	Cloth* cloth = nullptr;
 };
