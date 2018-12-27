@@ -1,2 +1,2 @@
 # kentucky-do-nothing
-C\C++ Game engine. Currently indev.
+C\C++ Renderer toy. Successfully got full skeletal animation with inverse kinematics. Also got some nice cloth simulation!
